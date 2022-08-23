@@ -2,7 +2,7 @@
 name: User Story
 about: A template for creating user stories.
 title: Describe This In Five~ish words
-labels: B-Approval
+labels: B-Review
 assignees: ''
 
 ---
