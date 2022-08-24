@@ -2,7 +2,7 @@
 name: Bug Report
 about: A template for creating bug reports.
 title: A super short description of the bug
-labels: C-Bug B-Review
+labels: C-Bug, B-Review
 assignees: ''
 
 ---
