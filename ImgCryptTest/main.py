@@ -1,3 +1,5 @@
+import pytest
+
 def test():
     # run tests from here with the framework
     pass
