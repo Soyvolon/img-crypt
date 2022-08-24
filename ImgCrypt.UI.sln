@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32408.312
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "ImgCrypt.UI", "ImgCrypt.UI\ImgCrypt.UI.pyproj", "{A804DEE0-FCFC-42A1-BE55-94DE87D6ACD2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. sln", "1. sln", "{C13AE0F4-9B9F-4084-8434-E5E2688E0C9F}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A804DEE0-FCFC-42A1-BE55-94DE87D6ACD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A804DEE0-FCFC-42A1-BE55-94DE87D6ACD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A38B534F-9A7F-4BDE-AFE3-7DBB4F097E79}
+	EndGlobalSection
+EndGlobal
