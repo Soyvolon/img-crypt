@@ -1,0 +1,32 @@
+'Author: Andrew Bounds
+'Last Edit: 2022-05-10
+@startuml Hiding Text In an Image
+title Hiding Text In An Image
+header Last Edit: 2022-10-05
+
+actor       User                    as  user
+participant "ImageCryptApp()"       as  gui
+participant "ImageModService()"     as  mod
+
+user -> gui ++ : Load Image
+
+user -> gui ++ : Input Text
+
+user -> gui ++ : Save Image
+
+gui -> gui ++ : Prompt Save Location
+user -> gui : Input Save Location
+gui --
+
+gui -> mod ++ : HideTextInImage(SettingProfile, text,\ninputPath, outputPath):void
+loop While Text is not Hidden
+    mod -> mod ++ : HideTextInPixel(SettingsProfile p, \nstring remainingText, Image img):void
+    mod --
+end
+mod --
+gui --
+gui --
+
+gui -> user : Display Confirmation Popup
+
+@enduml
