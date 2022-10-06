@@ -1,9 +1,13 @@
 @startuml
+'Author: Hayden Carpenter
+'Last Edit: 2022-05-10
+title Deleting User Profile
+header Last edit: 2022-05-10
 actor User
 participant "ImgCryptApp()" as gui
 database ProfileManagementService as db
 
-User->gui: Selects User Profile
+User->gui++: Selects User Profile
 
-gui->db: DeleteUserProfile(uuid)
+gui->db++: DeleteUserProfile(uuid)
 @enduml
