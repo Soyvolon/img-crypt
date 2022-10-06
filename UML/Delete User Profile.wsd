@@ -1,0 +1,9 @@
+@startuml
+actor User
+participant "ImgCryptApp()" as gui
+database ProfileManagementService as db
+
+User->gui: Selects User Profile
+
+gui->db: DeleteUserProfile(uuid)
+@enduml

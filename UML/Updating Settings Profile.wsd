@@ -1,0 +1,24 @@
+@startuml
+'Author: Hayden Carpenter
+'Last Edit: 2022-05-10
+title Updating Settings Profile
+header Last edit: 2022-05-10
+actor User
+participant "ImgCryptApp()" as gui
+participant "Settings_Profile()" as sp
+database ProfileManagementService as db
+
+User->gui ++ : Characters per pixel
+User->gui ++: Pixel Spacing
+User->gui ++: Color Settings
+User->gui ++: Encryption key
+
+gui->sp ** : Characters per pixel
+gui->sp: Pixel Spacing
+gui->sp: Color Settings
+gui->sp: Encryption key
+
+sp->db ++--: UpdateSettingsProfile\n(SettingsProfile, updatedProfile)
+
+gui->sp: New Settings profile
+@enduml
