@@ -1,0 +1,13 @@
+'Author: Andrew Bounds
+'Last Edit: 2022-05-10
+@startuml Switching Settings Profiles
+title Switching Settings Profiles
+header Last Edit: 2022-10-05
+
+Actor       User                            as  user
+participant "ImageCryptApp()"               as  gui
+
+user -> gui ++ : Select New Settings Profile
+gui -> gui : SetActiveSettingsProfile(p)
+
+@enduml

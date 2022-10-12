@@ -1,0 +1,33 @@
+'Author: Andrew Bounds
+'Last Edit: 2022-10-05
+@startuml Reveal Text In Image
+title Reveal Text In An Image
+header 2022-10-05
+
+actor       User                    as  user
+participant "ImageCryptApp()"       as  gui
+participant "ImageModService()"     as  mod
+
+user -> gui ++ : Load Image
+group Image Has Hidden Text
+    gui -> mod ++ : IsEncrypted(inputPath):bool
+    mod --
+
+    group Is Encrypted == true
+        gui -> gui ++ : Prompt For Encrypt Key
+        user -> gui : Input Encrypt Key
+        gui --
+    end
+
+    gui -> mod ++ : RevealTextInImage(string inputPath, \nstring encryptKey = "")\n:(SettingsProfile p, string text)
+    loop While Pixels Remain in Image
+        mod -> mod ++ : GetTextFromPixel(SettingsProfile p, \nImage img):string
+        mod --
+    end
+    mod --
+    
+    gui -> gui : SetActiveSettingsProfile(p)
+    gui -> gui : SetInputTextBoxContents(text)
+end
+
+@enduml

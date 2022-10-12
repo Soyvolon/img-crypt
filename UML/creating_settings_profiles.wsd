@@ -1,0 +1,22 @@
+'Author: Andrew Bounds
+'Last Edit: 2022-05-10
+@startuml Creating Settings Profiles
+title Creating Settings Profiles
+header Last Edit: 2022-10-05
+
+Actor       User                            as  user
+participant "ImageCryptApp()"               as  gui
+Database    "ProfileManagementService()"    as  pms
+
+user -> gui ++ : Request New Profile
+gui -> gui ++ : Prompt Profile Name
+user -> gui : Input Profile Name
+gui --
+
+gui -> gui ++ : Current User Profile UUID (key)
+gui -> pms ++-- : CreateSettingsProfile(string name,\nuuid key):SettingsProfile p
+pms --
+
+gui -> gui : SetActiveSettingsProfile(p)
+
+@enduml

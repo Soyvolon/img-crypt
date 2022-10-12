@@ -1,0 +1,19 @@
+'Author: Andrew Bounds
+'Last Edit: 2022-05-10
+@startuml Switching User Profiles
+title Switching User Profiles
+header Last Edit: 2022-10-05
+
+Actor       User                            as  user
+participant "ImageCryptApp()"               as  gui
+participant "ProfileManagementService()"    as  pms
+
+user -> gui ++ : Select New User Profile
+
+gui -> pms ++ : GetSettingsProfileForUserProfile\n(UserProfile profile):void
+pms --
+
+gui -> gui ++ : Get Alphabetically First\nSettings Profile
+gui -> gui -- : SetActiveSettingsProfile(p)
+
+@enduml
