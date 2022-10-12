@@ -10,13 +10,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. sln", "1. sln", "{C13AE0
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "ImgCryptCore", "ImgCryptCore\ImgCryptCore.pyproj", "{14FA078D-605B-4299-8755-9F43825626A3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UIMockup", "UIMockup\UIMockup.csproj", "{E3960BF2-A6AE-448C-9756-E0B1C9AE2ABD}"
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "ImgCryptTest", "ImgCryptTest\ImgCryptTest.pyproj", "{477BF1BD-D2AE-48B4-9E19-F2F49178EF22}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "src", "src\src.pyproj", "{1C0E10CD-3ADE-4354-9E9C-8FDB531575D0}"
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "ImgCryptUI", "ImgCryptUI\ImgCryptUI.pyproj", "{A804DEE0-FCFC-42A1-BE55-94DE87D6ACD2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UIMockup", "UIMockup\UIMockup.csproj", "{E3960BF2-A6AE-448C-9756-E0B1C9AE2ABD}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "test", "test\test.pyproj", "{946CC50E-2433-4104-B202-F25D228A6410}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,16 +22,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{14FA078D-605B-4299-8755-9F43825626A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{14FA078D-605B-4299-8755-9F43825626A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{477BF1BD-D2AE-48B4-9E19-F2F49178EF22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{477BF1BD-D2AE-48B4-9E19-F2F49178EF22}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A804DEE0-FCFC-42A1-BE55-94DE87D6ACD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A804DEE0-FCFC-42A1-BE55-94DE87D6ACD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3960BF2-A6AE-448C-9756-E0B1C9AE2ABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E3960BF2-A6AE-448C-9756-E0B1C9AE2ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3960BF2-A6AE-448C-9756-E0B1C9AE2ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3960BF2-A6AE-448C-9756-E0B1C9AE2ABD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C0E10CD-3ADE-4354-9E9C-8FDB531575D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C0E10CD-3ADE-4354-9E9C-8FDB531575D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{946CC50E-2433-4104-B202-F25D228A6410}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{946CC50E-2433-4104-B202-F25D228A6410}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
