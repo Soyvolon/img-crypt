@@ -1,5 +1,8 @@
+from UI import ImageCryptApp
 
-class Startup():
+# TODO: Documentation.
+
+class Startup(object):
     def __init__(self):
         # do inital application registration here, along with any configuration reading
         self.__db_conn_string = ""
