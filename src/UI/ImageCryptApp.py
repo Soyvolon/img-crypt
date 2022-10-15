@@ -29,7 +29,48 @@ class ImageCryptApp(tk.Tk):
         # this area should be used to set the entire layout without any
         # specific elements. Namely, should create the boundaries for UI-01,
         # UI-02, and UI-03, but not their contents.
-        pass
+
+        # set the title
+        self.title = "Image Crypt"
+
+        # create the left and right divions
+        # create the container for UI-02 and UI-03
+        self.__userActionFrame = tk.Frame(
+                master=self,
+                relief=tk.RAISED,
+                borderwidth=1, 
+                height=500
+            )
+        self.__userActionFrame.pack(padx=5, pady=5, fill=tk.BOTH, side=tk.LEFT, expand=True)
+
+        # create UI-01
+        self.__imagePreviewFrame = tk.Frame(
+                master=self,
+                relief=tk.RAISED,
+                borderwidth=1,
+                #bg="yellow", 
+                height=500,
+                width=350
+            )
+        self.__imagePreviewFrame.pack(padx=5, pady=5, fill=tk.BOTH, side=tk.LEFT, expand=True)
+
+        # create the top and bottom divisons for the
+        # input and settings portions
+
+        # create UI-02
+        self.__userInputFrame = tk.Frame(
+                master=self.__userActionFrame,
+                #bg="blue", 
+                width=650
+            )
+        self.__userInputFrame.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
+
+        # create UI-03
+        self.__userSettingsFarme = tk.Frame(
+                master=self.__userActionFrame,
+                #background="red"
+            )
+        self.__userSettingsFarme.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
 
     def __gen_image_preview(self):
         # TODO: The image preview section. Should contain UI-01.
@@ -38,6 +79,8 @@ class ImageCryptApp(tk.Tk):
     def __gen_user_input(self):
         # TOOD: The user input section. Should contain UI elements
         # within UI-02.
+
+
         pass
 
     def __gen_user_settings(self):
