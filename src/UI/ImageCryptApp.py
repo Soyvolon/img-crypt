@@ -50,7 +50,7 @@ class ImageCryptApp(tk.Tk):
                 borderwidth=1,
                 #bg="yellow", 
                 height=500,
-                width=350
+                width=300
             )
         self.__imagePreviewFrame.pack(padx=5, pady=5, fill=tk.BOTH, side=tk.LEFT, expand=True)
 
@@ -61,7 +61,7 @@ class ImageCryptApp(tk.Tk):
         self.__userInputFrame = tk.Frame(
                 master=self.__userActionFrame,
                 #bg="blue", 
-                width=650
+                width=600
             )
         self.__userInputFrame.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
 
