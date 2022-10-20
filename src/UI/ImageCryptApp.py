@@ -1,5 +1,6 @@
 import tkinter as tk
 from wsgiref import validate
+from Subsections import ImagePreviewFrame as ipf
 
 class ImageCryptApp(tk.Tk):
     # REGION CORE
@@ -7,7 +8,7 @@ class ImageCryptApp(tk.Tk):
         # call the TK UI init
         super().__init__()
 
-        # TODO: initalize services
+        # TODO: initialize services
 
 
         # build the UI
@@ -25,7 +26,7 @@ class ImageCryptApp(tk.Tk):
         self.__gen_user_settings()
 
     def __gen_main_window(self):
-        # TODO: Main window size, color, bg, and deafult texts/colors.
+        # TODO: Main window size, color, bg, and default texts/colors.
         # this area should be used to set the entire layout without any
         # specific elements. Namely, should create the boundaries for UI-01,
         # UI-02, and UI-03, but not their contents.
@@ -33,7 +34,7 @@ class ImageCryptApp(tk.Tk):
         # set the title
         self.title = "Image Crypt"
 
-        # create the left and right divions
+        # create the left and right divisions
         # create the container for UI-02 and UI-03
         self.__userActionFrame = tk.Frame(
                 master=self,
@@ -44,17 +45,10 @@ class ImageCryptApp(tk.Tk):
         self.__userActionFrame.pack(padx=5, pady=5, fill=tk.BOTH, side=tk.LEFT, expand=True)
 
         # create UI-01
-        self.__imagePreviewFrame = tk.Frame(
-                master=self,
-                relief=tk.RAISED,
-                borderwidth=1,
-                #bg="yellow", 
-                height=500,
-                width=300
-            )
+        self.__imagePreviewFrame = ipf.ImagePreviewFrame()
         self.__imagePreviewFrame.pack(padx=5, pady=5, fill=tk.BOTH, side=tk.LEFT, expand=True)
 
-        # create the top and bottom divisons for the
+        # create the top and bottom divisions for the
         # input and settings portions
 
         # create UI-02
@@ -66,11 +60,11 @@ class ImageCryptApp(tk.Tk):
         self.__userInputFrame.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
 
         # create UI-03
-        self.__userSettingsFarme = tk.Frame(
+        self.__userSettingsFrame = tk.Frame(
                 master=self.__userActionFrame,
                 #background="red"
             )
-        self.__userSettingsFarme.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
+        self.__userSettingsFrame.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
 
     def __gen_image_preview(self):
         # TODO: The image preview section. Should contain UI-01.
@@ -79,6 +73,10 @@ class ImageCryptApp(tk.Tk):
     def __gen_user_input(self):
         # TOOD: The user input section. Should contain UI elements
         # within UI-02.
+
+        # the frame for the user input controls
+        frame = self.__userInputFrame
+
 
 
         pass
