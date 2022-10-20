@@ -1,11 +1,13 @@
-import tkinter as tk
+import tkinter as ttk
 from wsgiref import validate
-from Subsections import ImagePreviewFrame as ipf
+from UI.Subsections.ImagePreviewFrame import ImagePreviewFrame
+from UI.Subsections.UserInputFrame import UserInputFrame
+from UI.Subsections.UserSettingsFrame import UserSettingsFrame
 
-class ImageCryptApp(tk.Tk):
+class ImageCryptApp(ttk.Tk):
     # REGION CORE
     def __init__(self):
-        # call the TK UI init
+        # call the ttk UI init
         super().__init__()
 
         # TODO: initialize services
@@ -16,16 +18,7 @@ class ImageCryptApp(tk.Tk):
     #END REGION
 
     # REGION UI GENERATION
-    # NOTE: UI generation execution should be done in the
-    # order of the UI generation methods in this region.
-
     def __gen_ui(self):
-        self.__gen_main_window()
-        self.__gen_image_preview()
-        self.__gen_user_input()
-        self.__gen_user_settings()
-
-    def __gen_main_window(self):
         # TODO: Main window size, color, bg, and default texts/colors.
         # this area should be used to set the entire layout without any
         # specific elements. Namely, should create the boundaries for UI-01,
@@ -34,68 +27,60 @@ class ImageCryptApp(tk.Tk):
         # set the title
         self.title = "Image Crypt"
 
+        # create the overall container
+        self.__parentContainer = ttk.PanedWindow(
+            master=self,
+            orient=ttk.HORIZONTAL,
+            sashrelief=ttk.GROOVE,
+            sashpad=3
+        )
+
         # create the left and right divisions
         # create the container for UI-02 and UI-03
-        self.__userActionFrame = tk.Frame(
-                master=self,
-                relief=tk.RAISED,
-                borderwidth=1, 
-                height=500
-            )
-        self.__userActionFrame.pack(padx=5, pady=5, fill=tk.BOTH, side=tk.LEFT, expand=True)
+        self.__userActionFrame = ttk.PanedWindow(
+            master=self.__parentContainer,
+            height=500,
+            orient=ttk.VERTICAL,
+            sashrelief=ttk.GROOVE,
+            sashpad=3
+        )
 
         # create UI-01
-        self.__imagePreviewFrame = ipf.ImagePreviewFrame()
-        self.__imagePreviewFrame.pack(padx=5, pady=5, fill=tk.BOTH, side=tk.LEFT, expand=True)
+        self.__imagePreviewFrame = ImagePreviewFrame(self.__parentContainer)
 
         # create the top and bottom divisions for the
         # input and settings portions
 
         # create UI-02
-        self.__userInputFrame = tk.Frame(
-                master=self.__userActionFrame,
-                #bg="blue", 
-                width=600
-            )
-        self.__userInputFrame.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
+        self.__userInputFrame = UserInputFrame(self.__userActionFrame)
 
         # create UI-03
-        self.__userSettingsFrame = tk.Frame(
-                master=self.__userActionFrame,
-                #background="red"
-            )
-        self.__userSettingsFrame.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
+        self.__userSettingsFrame = UserSettingsFrame(self.__userActionFrame)
 
-    def __gen_image_preview(self):
-        # TODO: The image preview section. Should contain UI-01.
-        pass
+        # pack the UI into a displayed state.
+        self.__pack_ui()
 
-    def __gen_user_input(self):
-        # TOOD: The user input section. Should contain UI elements
-        # within UI-02.
+    def __pack_ui(self):
+        self.__parentContainer.pack(fill=ttk.BOTH, side=ttk.LEFT, expand=True)
 
-        # the frame for the user input controls
-        frame = self.__userInputFrame
+        self.__userActionFrame.pack(fill=ttk.BOTH, side=ttk.LEFT, expand=True)
 
+        self.__imagePreviewFrame.pack(fill=ttk.BOTH, side=ttk.LEFT, expand=True)
+        self.__imagePreviewFrame.pack_ui()
 
+        self.__userInputFrame.pack(fill=ttk.BOTH, side=ttk.TOP, expand=True)
+        self.__userInputFrame.pack_ui()
 
-        pass
+        self.__userSettingsFrame.pack(fill=ttk.BOTH, side=ttk.TOP, expand=True)
+        self.__userSettingsFrame.pack_ui()
 
-    def __gen_user_settings(self):
-        # TODO: The user settings section. Should contain UI elements
-        # within UI-03
-        pass
+        # configure the paned windows
+        # save the user input/settings to the user action frame
+        self.__userActionFrame.add(self.__userInputFrame)
+        self.__userActionFrame.add(self.__userSettingsFrame)
+
+        # add the user control panes
+        self.__parentContainer.add(self.__userActionFrame)
+        self.__parentContainer.add(self.__imagePreviewFrame)
+            
     # END REGION
-
-    # REGION INPUT VALIDATION
-    # TODO: Build input validation code for the UI.
-    # END REGION
-
-    # REGION CONTROL CODE
-    # TODO: Handle button presses. by passing calls with the proper values to the various services
-    # and displaying those results correctly.
-    # END REGION
-
-
-
-

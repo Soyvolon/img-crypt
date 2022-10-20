@@ -1,18 +1,23 @@
-import tkinter as tk
+import tkinter as ttk
+from .AppFrameInterface import AppFrameInterface
 
-class ImagePreviewFrame(tk.Frame):
-    def __init__(self):
+class ImagePreviewFrame(AppFrameInterface):
+    def __init__(self, parent):
         # initialize the preview frame object
-        tk.Frame.__init__(
-            master=self,
-            relief=tk.RAISED,
+        ttk.LabelFrame.__init__(self,
+            master=parent,
             borderwidth=1,
             #bg="yellow", 
             height=500,
-            width=300
+            width=300,
+            text="Image Preview"
         )
 
-        self.__initialize()
+        self._initialize()
         
-    def __initialize(self):
+    def _initialize(self):
         pass
+
+    def pack_ui(self):
+        pass
+        # pack the child objects
