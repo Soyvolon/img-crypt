@@ -128,6 +128,7 @@ class UserSettingsFrame(AppFrameInterface):
         )
 
     def pack_ui(self):
+        # TODO fix spacers and grid spacing on elements
         # pack the grid!
         # 7 rows, 12 cols        1 1
         #    0 1 2 3 4 5 6 7 8 9 0 1
@@ -187,11 +188,27 @@ class UserSettingsFrame(AppFrameInterface):
         self.__hashKey.grid(column=7, row=6, columnspan=5)
 
     def validate_number(self, val: str) -> bool:
+        """
+        Validates input to verify that it is only a positive number
+
+        Precondition:
+            A user has inputted data into an input field
+
+        Args:
+            val (str): The new string value for the entry box
+
+        Returns:
+            bool: Returns True if the value is a valid, positive, number, or is empty
+
+        Postcondition:
+            A: The entry box reflects the new value
+                OR
+            B: The entry box remains the same as it was pre-input
+        """
         if val == "" or val is None:
             return True
 
         try:
-            float(val)
-            return True
+            return float(val) > 0
         except:
             return False
