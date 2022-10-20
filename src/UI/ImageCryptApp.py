@@ -94,7 +94,7 @@ class ImageCryptApp(tk.Tk):
     # REGION CONTROL CODE
     # TODO: Handle button presses. by passing calls with the proper values to the various services
     # and displaying those results correctly.
-    # ENDREGIOn
+    # END REGION
 
 
 
