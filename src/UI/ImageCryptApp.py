@@ -1,5 +1,4 @@
 import tkinter as ttk
-from wsgiref import validate
 from UI.Subsections.ImagePreviewFrame import ImagePreviewFrame
 from UI.Subsections.UserInputFrame import UserInputFrame
 from UI.Subsections.UserSettingsFrame import UserSettingsFrame
