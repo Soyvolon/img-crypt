@@ -1,5 +1,6 @@
-from tkinter import HORIZONTAL, VERTICAL
+import os
 import tkinter.ttk as ttk
+import tkinter as tk
 from wsgiref import validate
 from .AppFrameInterface import AppFrameInterface
 
@@ -8,75 +9,123 @@ class UserSettingsFrame(AppFrameInterface):
         # initialize the user settings frame object
         ttk.LabelFrame.__init__(self,
             master=parent,
-            height=250,
+            height=150,
             text="User Settings"
         )
 
+        self.__addImage = tk.PhotoImage(file=os.path.abspath(os.path.join('icon', 'add_circle_gfont.png')))
+        self.__deleteImage = tk.PhotoImage(file=os.path.abspath(os.path.join('icon', 'delete_forever_gfont.png')))
+        self.__saveImage = tk.PhotoImage(file=os.path.abspath(os.path.join('icon', 'save_gfont.png')))
+
         self._initialize()
-        
+
     def _initialize(self):
+        # left frame
+        self.__leftFrame = ttk.Frame(
+            master=self,
+            padding=(2, 2, 6, 2)
+        )
+
+        # ---- items on the left of the menu ----
+
+        # user profile frame
+        self.__userProfileFrame = ttk.Frame(
+            master=self.__leftFrame
+        )
+
         # user profile label
         self.__userProfileLabel = ttk.Label(
-            master=self,
+            master=self.__leftFrame,
             text="User Profiles"
         )
 
         # user profile selection
         self.__userProfile = ttk.Combobox(
-            master=self
+            master=self.__userProfileFrame
         )
 
         # user profile add button
         self.__addUserProfile = ttk.Button(
-            master=self
+            master=self.__userProfileFrame,
+            image=self.__addImage
         )
 
         # user profile delete button
         self.__deleteUserProfile = ttk.Button(
-            master=self
+            master=self.__userProfileFrame,
+            image=self.__deleteImage
         )
 
-        # settings profile label
-        self.__settingsProfileLabel = ttk.Label(
-            master=self,
-            text="Settings Profiles"
+        # color settings label
+        self.__colorSettingsLabel = ttk.Label(
+            master=self.__leftFrame,
+            text="Color Settings"
         )
 
-        # settings profile selection
-        self.__settingsProfile = ttk.Combobox(
-            master=self
+        # color settings combo
+        self.__colorSettings = ttk.Combobox(
+            master=self.__leftFrame,
+            values=('Standard', 'Unique')
         )
-
-        # settings profile add button
-        self.__addSettingsProfile = ttk.Button(
-            master=self
-        )
-
-        # settings profile delete button
-        self.__deleteSettingsProfile = ttk.Button(
-            master=self
-        )
-
-        # settings profile save button
-        self.__saveSettingsProfile = ttk.Button(
-            master=self
-        )
-
+        
         # characters per pixel label
         self.__charsPerPixelLabel = ttk.Label(
-            master=self,
+            master=self.__leftFrame,
             text="Characters Per Pixel"
         )
 
         # characters per pixel combo
         self.__charsPerPixel = ttk.Combobox(
-            master=self,
+            master=self.__leftFrame,
             values=('1', '2', '3')
+        )
+
+        # ---- end left frame code ----
+
+        # ---- Items on the right of the settings pane ----
+        # right frame
+        self.__rightFrame = ttk.Frame(
+            master=self,
+            padding=(6, 2, 2, 2)
+        )
+
+        # settings profile name
+        self.__settingsProfileFrame = ttk.Frame(
+            master=self.__rightFrame
+        )
+
+        # settings profile label
+        self.__settingsProfileLabel = ttk.Label(
+            master=self.__rightFrame,
+            text="Settings Profiles"
+        )
+
+        # settings profile selection
+        self.__settingsProfile = ttk.Combobox(
+            master=self.__settingsProfileFrame
+        )
+
+        # settings profile add button
+        self.__addSettingsProfile = ttk.Button(
+            master=self.__settingsProfileFrame,
+            image=self.__addImage
+        )
+
+        # settings profile delete button
+        self.__deleteSettingsProfile = ttk.Button(
+            master=self.__settingsProfileFrame,
+            image=self.__deleteImage
+        )
+
+        # settings profile save button
+        self.__saveSettingsProfile = ttk.Button(
+            master=self.__settingsProfileFrame,
+            image=self.__saveImage
         )
 
         # pixel spacing label
         self.__pixelSpacingLabel = ttk.Label(
-            master=self,
+            master=self.__rightFrame,
             text="Pixel Spacing"
         )
 
@@ -84,108 +133,100 @@ class UserSettingsFrame(AppFrameInterface):
 
         # pixel spacing input
         self.__pixelSpacing = ttk.Entry(
-            master=self,
+            master=self.__rightFrame,
             validate='key',
             validatecommand=vcmd
         )
 
-        # color settings label
-        self.__colorSettingsLabel = ttk.Label(
-            master=self,
-            text="Color Settings"
-        )
-
-        # color settings combo
-        self.__colorSettings = ttk.Combobox(
-            master=self,
-            values=('Standard', 'Unique')
-        )
-
         # hash key label
         self.__hashKeyLabel = ttk.Label(
-            master=self,
+            master=self.__rightFrame,
             text="Hash Key"
         )
 
         # hash key input
         self.__hashKey = ttk.Entry(
-            master=self,
+            master=self.__rightFrame,
             show='*'
         )
 
-        # spacer frames
-        self.__vertSpacerA = ttk.Separator(
-            master=self,
-            orient=HORIZONTAL
-        )
-        self.__vertSpacerB = ttk.Separator(
-            master=self,
-            orient=HORIZONTAL
-        )
-        self.__horizSpacer = ttk.Separator(
-            master=self,
-            orient=VERTICAL
-        )
+        # ---- end right frame code ----
 
     def pack_ui(self):
         # TODO fix spacers and grid spacing on elements
         # pack the grid!
-        # 7 rows, 12 cols        1 1
-        #    0 1 2 3 4 5 6 7 8 9 0 1
-        #   |-----------------------|
-        # 0 | A       | | | B       | A: user profile label, B: settings profile label
-        #   |-----------------------|
-        # 1 | A   |B|C| | | D |E|F|G| A: user profile, B: user new, C: user del, D: setting profile, E: setting new, F: setting del, G: setting save
-        #   |-----------------------|
-        # 2 | | | | | | | | | | | | | Nothing in this row
-        #   |-----------------------|
-        # 3 | A       |   | B       | A: CharPerPixel label, B: pixel spacing label
-        #   |-----------------------|
-        # 4 | A       |   | B       | A: CharPerPixel combo, B: pixel spacing entry
-        #   |-----------------------|
-        # 5 | A       |   | B       | A: color settings label, B: hash key label
-        #   |-----------------------|
-        # 6 | A       |   | B       | A: color settings combo, B: hash key entry
-        #   |-----------------------|
+        # 7 rows, 10 cols      
+        #    0 1 2 3 4 5 6 7 8 9
+        #   |-------------------|
+        # 0 | A       | B       | A: user profile label, B: settings profile label
+        #   |-------------------|
+        # 1 | A   |B|C| D |E|F|G| A: user profile, B: user new, C: user del, D: setting profile, E: setting new, F: setting del, G: setting save
+        #   |-------------------|
+        # 2 | | | | | | | | | | | Nothing in this row
+        #   |-------------------|
+        # 3 | A       | B       | A: CharPerPixel label, B: pixel spacing label
+        #   |-------------------|
+        # 4 | A       | B       | A: CharPerPixel combo, B: pixel spacing entry
+        #   |-------------------|
+        # 5 | A       | B       | A: color settings label, B: hash key label
+        #   |-------------------|
+        # 6 | A       | B       | A: color settings combo, B: hash key entry
+        #   |-------------------|
+        # 4 has large left padding
+        # 5 has large right padding
 
         # configure the row/column weights
-        self.columnconfigure(tuple(range(12)), weight=1)
-        self.rowconfigure(tuple(range(7)), weight=1)
+        self.columnconfigure(tuple(range(2)), weight=1, pad=4)
+        self.rowconfigure(tuple(range(1)), weight=1, pad=4)
 
-        # setup row 0
-        self.__userProfileLabel.grid(column=0, row=0, columnspan=5)
-        self.__settingsProfileLabel.grid(column=7, row=0, columnspan=5)
+        # setup the columns for the frames
+        self.__leftFrame.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)
+        self.__rightFrame.grid(column=1, row=0, sticky='nswe', padx=2, pady=2)
 
-        # setup row 1
-        self.__userProfile.grid(column=0, row=1, columnspan=3)
-        self.__addUserProfile.grid(column=4, row=1)
-        self.__deleteUserProfile.grid(column=5, row=1)
-        
-        self.__settingsProfile.grid(column=7, row=1, columnspan=2)
-        self.__addSettingsProfile.grid(column=9, row=1)
-        self.__deleteSettingsProfile.grid(column=10, row=1)
-        self.__saveSettingsProfile.grid(column=11, row=1)
+        # ---- left grid ----
+        # setup the gird weight
+        self.__leftFrame.rowconfigure(tuple(range(5)), weight=1)
+        self.__leftFrame.columnconfigure(0, weight=1)
+        # setup all the items on the left side, rows 0 to 5
+        self.__userProfileLabel.grid(column=0, row=0, sticky='nwe', padx=2, pady=2)
+        self.__userProfileFrame.grid(column=0, row=1, sticky='nwe', padx=2, pady=2)
+        self.__charsPerPixelLabel.grid(column=0, row=2, sticky='we', padx=2, pady=2)
+        self.__charsPerPixel.grid(column=0, row=3, sticky='we', padx=2, pady=2)
+        self.__colorSettingsLabel.grid(column=0, row=4, sticky='swe', padx=2, pady=2)
+        self.__colorSettings.grid(column=0, row=5, sticky='swe', padx=2, pady=2)
+            # ---- user profile frame ----
+            # setup the grid weight
+        self.__userProfileFrame.rowconfigure(0, weight=1)
+        self.__userProfileFrame.columnconfigure(tuple(range(3)), weight=1)
+            # setup the user profile selection/mod row
+        self.__userProfile.grid(column=0, row=0, sticky='nwe', padx=2, pady=2)
+        self.__addUserProfile.grid(column=1, row=0, sticky='nwe', padx=2, pady=2)
+        self.__deleteUserProfile.grid(column=2, row=0, sticky='nwe', padx=2, pady=2)
+            # ---- end user profile frame ----
+        # ---- end left grid ----
 
-        # setup spacers on row 2/mid cols
-        self.__vertSpacerA.grid(column=0, row=2, columnspan=5)
-        self.__vertSpacerB.grid(column=7, row=2, columnspan=5)
-        self.__horizSpacer.grid(column=5, row=0, columnspan=2, rowspan=7)
-
-        # setup row 3
-        self.__charsPerPixelLabel.grid(column=0, row=3, columnspan=5)
-        self.__pixelSpacingLabel.grid(column=7, row=3, columnspan=5)
-
-        # setup row 4
-        self.__charsPerPixel.grid(column=0, row=4, columnspan=5)
-        self.__pixelSpacing.grid(column=7, row=4, columnspan=5)
-
-        # setup row 5
-        self.__colorSettingsLabel.grid(column=0, row=5, columnspan=5)
-        self.__hashKeyLabel.grid(column=7, row=5, columnspan=5)
-
-        # setup row 6
-        self.__colorSettings.grid(column=0, row=6, columnspan=5)
-        self.__hashKey.grid(column=7, row=6, columnspan=5)
+        # ---- right grid ----
+        # setup the grid weight
+        self.__rightFrame.rowconfigure(tuple(range(5)), weight=1)
+        self.__rightFrame.columnconfigure(0, weight=1)
+        # setup all the items on the right side, rows 0 to 5
+        self.__settingsProfileLabel.grid(column=0, row=0, sticky='nwe', padx=2, pady=2)
+        self.__settingsProfileFrame.grid(column=0, row=1, sticky='nwe', padx=2, pady=2)
+        self.__pixelSpacingLabel.grid(column=0, row=2, sticky='we', padx=2, pady=2)
+        self.__pixelSpacing.grid(column=0, row=3, sticky='we', padx=2, pady=2)
+        self.__hashKeyLabel.grid(column=0, row=4, sticky='swe', padx=2, pady=2)
+        self.__hashKey.grid(column=0, row=5, sticky='swe', padx=2, pady=2)
+            # ---- settings profile frame ----
+            # setup the grid weight
+        self.__settingsProfileFrame.rowconfigure(0, weight=1)
+        self.__settingsProfileFrame.columnconfigure(tuple(range(4)), weight=1)
+            # setup the settings profile selection/mod row
+        self.__settingsProfile.grid(column=0, row=0, sticky='nwe', padx=2, pady=2)
+        self.__addSettingsProfile.grid(column=1, row=0, sticky='nwe', padx=2, pady=2)
+        self.__deleteSettingsProfile.grid(column=2, row=0, sticky='nwe', padx=2, pady=2)
+        self.__saveSettingsProfile.grid(column=3, row=0, sticky='nwe', padx=2, pady=2)
+            # ---- end settings profile frame ----
+        # ---- end right grid ----
 
     def validate_number(self, val: str) -> bool:
         """

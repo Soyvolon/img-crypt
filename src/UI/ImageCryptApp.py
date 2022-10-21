@@ -1,9 +1,8 @@
-import tkinter as ttk
-from UI.Subsections.ImagePreviewFrame import ImagePreviewFrame
-from UI.Subsections.UserInputFrame import UserInputFrame
-from UI.Subsections.UserSettingsFrame import UserSettingsFrame
+import tkinter.ttk as ttk
+import tkinter as tk
+from .Subsections import *
 
-class ImageCryptApp(ttk.Tk):
+class ImageCryptApp(tk.Tk):
     # REGION CORE
     def __init__(self):
         # call the ttk UI init
@@ -24,23 +23,25 @@ class ImageCryptApp(ttk.Tk):
         # UI-02, and UI-03, but not their contents.
 
         # set the title
-        self.title = "Image Crypt"
+        self.wm_title("Image Crypt")
+        self.wm_minsize(250, 250)
 
         # create the overall container
-        self.__parentContainer = ttk.PanedWindow(
+        self.__parentContainer = tk.PanedWindow(
             master=self,
-            orient=ttk.HORIZONTAL,
-            sashrelief=ttk.GROOVE,
+            orient=tk.HORIZONTAL,
+            sashrelief=tk.GROOVE,
             sashpad=3
         )
 
         # create the left and right divisions
         # create the container for UI-02 and UI-03
-        self.__userActionFrame = ttk.PanedWindow(
+        self.__userActionFrame = tk.PanedWindow(
             master=self.__parentContainer,
             height=500,
-            orient=ttk.VERTICAL,
-            sashrelief=ttk.GROOVE,
+            width=500,
+            orient=tk.VERTICAL,
+            sashrelief=tk.GROOVE,
             sashpad=3
         )
 
@@ -60,23 +61,27 @@ class ImageCryptApp(ttk.Tk):
         self.__pack_ui()
 
     def __pack_ui(self):
-        self.__parentContainer.pack(fill=ttk.BOTH, side=ttk.LEFT, expand=True)
+        self.__parentContainer.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
 
-        self.__userActionFrame.pack(fill=ttk.BOTH, side=ttk.LEFT, expand=True)
+        self.__userActionFrame.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
 
-        self.__imagePreviewFrame.pack(fill=ttk.BOTH, side=ttk.LEFT, expand=True)
+        self.__imagePreviewFrame.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         self.__imagePreviewFrame.pack_ui()
 
-        self.__userInputFrame.pack(fill=ttk.BOTH, side=ttk.TOP, expand=True)
+        self.__userInputFrame.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
         self.__userInputFrame.pack_ui()
 
-        self.__userSettingsFrame.pack(fill=ttk.BOTH, side=ttk.TOP, expand=True)
+        self.__userSettingsFrame.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
         self.__userSettingsFrame.pack_ui()
 
         # configure the paned windows
         # save the user input/settings to the user action frame
         self.__userActionFrame.add(self.__userInputFrame)
         self.__userActionFrame.add(self.__userSettingsFrame)
+
+        # adjust the sash so the text input area is larger than
+        # the settings area
+        self.__userActionFrame.sash_place(0, 0, 300)
 
         # add the user control panes
         self.__parentContainer.add(self.__userActionFrame)

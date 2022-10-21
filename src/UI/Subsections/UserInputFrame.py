@@ -8,8 +8,8 @@ class UserInputFrame(AppFrameInterface):
         ttk.LabelFrame.__init__(self,
             master=parent,
             #bg="blue", 
-            width=600,
-            height=250,
+            width=500,
+            height=350,
             text="Image Text"
         )
 
