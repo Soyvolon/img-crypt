@@ -1,11 +1,13 @@
 import os
 import tkinter.ttk as ttk
 import tkinter as tk
-from wsgiref import validate
+
+from .ImagePreviewFrame import ImagePreviewFrame
 from .AppFrameInterface import AppFrameInterface
+from ...Core.Services import ProfileManagementServiceInterface as PMSI
 
 class UserSettingsFrame(AppFrameInterface):
-    def __init__(self, parent):
+    def __init__(self, parent, services):
         # initialize the user settings frame object
         ttk.LabelFrame.__init__(self,
             master=parent,
@@ -13,13 +15,27 @@ class UserSettingsFrame(AppFrameInterface):
             text="User Settings"
         )
 
+        # Save the service collection
+        self.__services = services
+        
+        self.__initialized = False
+
         self.__addImage = tk.PhotoImage(file=os.path.abspath(os.path.join('icon', 'add_circle_gfont.png')))
         self.__deleteImage = tk.PhotoImage(file=os.path.abspath(os.path.join('icon', 'delete_forever_gfont.png')))
         self.__saveImage = tk.PhotoImage(file=os.path.abspath(os.path.join('icon', 'save_gfont.png')))
 
-        self._initialize()
+        self._build()
 
-    def _initialize(self):
+    def initialize(self) -> None:
+        # get the services we need
+        self.__imagePreview: ImagePreviewFrame = self.__services[ImagePreviewFrame]
+        self.__profileService: PMSI = self.__services[PMSI]
+
+        self.__initialized = True  
+        # we dont need the whole service collection
+        self.__services = None      
+
+    def _build(self):
         # left frame
         self.__leftFrame = ttk.Frame(
             master=self,

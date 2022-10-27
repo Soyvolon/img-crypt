@@ -1,6 +1,7 @@
 import tkinter.ttk as ttk
 import tkinter as tk
 from .Subsections import *
+from Core.Services import *
 
 class ImageCryptApp(tk.Tk):
     # REGION CORE
@@ -8,11 +9,19 @@ class ImageCryptApp(tk.Tk):
         # call the ttk UI init
         super().__init__()
 
-        # TODO: initialize services
-
+        # build the service collection
+        self.__serviceCollection = {
+            # create some instances of these services.
+            ImageModificationServiceInterface: ImageModificationService(),
+            ProfileManagementServiceInterface: ProfileManagementService()
+        }
 
         # build the UI
         self.__gen_ui()
+
+        # initialize any additional services.
+        
+
     #END REGION
 
     # REGION UI GENERATION
@@ -45,17 +54,21 @@ class ImageCryptApp(tk.Tk):
             sashpad=3
         )
 
+        self.__serviceCollection[ImagePreviewFrame] = ImagePreviewFrame(self.__parentContainer)
+        self.__serviceCollection[UserInputFrame] = UserInputFrame(self.__userActionFrame, self.__serviceCollection)
+        self.__serviceCollection[UserSettingsFrame] = UserSettingsFrame(self.__userActionFrame, self.__serviceCollection)
+
         # create UI-01
-        self.__imagePreviewFrame = ImagePreviewFrame(self.__parentContainer)
+        self.__imagePreviewFrame = self.__serviceCollection[ImagePreviewFrame]
 
         # create the top and bottom divisions for the
         # input and settings portions
 
         # create UI-02
-        self.__userInputFrame = UserInputFrame(self.__userActionFrame)
+        self.__userInputFrame = self.__serviceCollection[UserInputFrame]
 
         # create UI-03
-        self.__userSettingsFrame = UserSettingsFrame(self.__userActionFrame)
+        self.__userSettingsFrame = self.__serviceCollection[UserSettingsFrame]
 
         # pack the UI into a displayed state.
         self.__pack_ui()

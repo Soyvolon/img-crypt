@@ -14,9 +14,9 @@ class ImagePreviewFrame(AppFrameInterface):
             text="Image Preview"
         )
 
-        self._initialize()
+        self._build()
         
-    def _initialize(self):
+    def _build(self):
         self.__imageCanvas = tk.Canvas(
             master=self,
             background='gray75',
