@@ -4,7 +4,7 @@ import tkinter as tk
 
 from .ImagePreviewFrame import ImagePreviewFrame
 from .AppFrameInterface import AppFrameInterface
-from ...Core.Services import ProfileManagementServiceInterface as PMSI
+from Core.Services import ProfileManagementServiceInterface as PMSI
 
 class UserSettingsFrame(AppFrameInterface):
     def __init__(self, parent, services):

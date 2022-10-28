@@ -3,7 +3,7 @@ import tkinter.ttk as ttk
 
 from .ImagePreviewFrame import ImagePreviewFrame
 from .AppFrameInterface import AppFrameInterface
-from ...Core.Services import ImageModificationServiceInterface as IMSI
+from Core.Services import ImageModificationServiceInterface as IMSI
 
 class UserInputFrame(AppFrameInterface):
     def __init__(self, parent, services):

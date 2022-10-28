@@ -13,14 +13,22 @@ class ImageCryptApp(tk.Tk):
         self.__serviceCollection = {
             # create some instances of these services.
             ImageModificationServiceInterface: ImageModificationService(),
-            ProfileManagementServiceInterface: ProfileManagementService()
+            ProfileManagementServiceInterface: ProfileManagementService(),
+            ImageCryptApp: self
         }
 
         # build the UI
         self.__gen_ui()
 
         # initialize any additional services.
-        
+        frame: AppFrameInterface = self.__serviceCollection[UserSettingsFrame]
+        frame.initialize()
+
+        frame = self.__serviceCollection[UserInputFrame]
+        frame.initialize()
+
+        frame = self.__serviceCollection[ImagePreviewFrame]
+        frame.initialize()
 
     #END REGION
 
@@ -54,7 +62,7 @@ class ImageCryptApp(tk.Tk):
             sashpad=3
         )
 
-        self.__serviceCollection[ImagePreviewFrame] = ImagePreviewFrame(self.__parentContainer)
+        self.__serviceCollection[ImagePreviewFrame] = ImagePreviewFrame(self.__parentContainer, self.__serviceCollection)
         self.__serviceCollection[UserInputFrame] = UserInputFrame(self.__userActionFrame, self.__serviceCollection)
         self.__serviceCollection[UserSettingsFrame] = UserSettingsFrame(self.__userActionFrame, self.__serviceCollection)
 
