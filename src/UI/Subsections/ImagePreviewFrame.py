@@ -3,7 +3,7 @@ import tkinter.ttk as ttk
 from .AppFrameInterface import AppFrameInterface
 
 class ImagePreviewFrame(AppFrameInterface):
-    def __init__(self, parent):
+    def __init__(self, parent, services):
         # initialize the preview frame object
         tk.LabelFrame.__init__(self,
             master=parent,
@@ -14,9 +14,14 @@ class ImagePreviewFrame(AppFrameInterface):
             text="Image Preview"
         )
 
-        self._initialize()
+        self.__initialized = False
+
+        self._build()
+
+    def initialize(self) -> None:
+        self.__initialized = True
         
-    def _initialize(self):
+    def _build(self):
         self.__imageCanvas = tk.Canvas(
             master=self,
             background='gray75',

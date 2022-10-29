@@ -1,9 +1,12 @@
 from tkinter import Text
 import tkinter.ttk as ttk
+
+from .ImagePreviewFrame import ImagePreviewFrame
 from .AppFrameInterface import AppFrameInterface
+from Core.Services import ImageModificationServiceInterface as IMSI
 
 class UserInputFrame(AppFrameInterface):
-    def __init__(self, parent):
+    def __init__(self, parent, services):
         # initialize the user input frame object
         ttk.LabelFrame.__init__(self,
             master=parent,
@@ -13,9 +16,22 @@ class UserInputFrame(AppFrameInterface):
             text="Image Text"
         )
 
-        self._initialize()
+        self.__services = services
+
+        self.__initialized = False
+
+        self._build()
         
-    def _initialize(self) -> None:
+    def initialize(self) -> None:
+        # get the services we need.
+        self.__imagePreview: ImagePreviewFrame = self.__services[ImagePreviewFrame]
+        self.__imageService: IMSI = self.__services[IMSI]        
+
+        self.__initialized = True
+        # we dont need this entire collection in memory anymore.
+        self.__services = None
+    
+    def _build(self) -> None:
         # text input field
         self.__textInput = Text(
             master=self,

@@ -3,7 +3,11 @@ import tkinter.ttk as ttk
 
 class AppFrameInterface(ABC, ttk.Labelframe):
     @abstractmethod
-    def _initialize(self) -> None:
+    def initialize(self) -> None:
+        pass
+
+    @abstractmethod
+    def _build(self) -> None:
         """
         Creates the child objects for this frame.
 
