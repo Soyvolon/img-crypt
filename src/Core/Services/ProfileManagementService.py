@@ -1,3 +1,6 @@
+# Last Edit: 2022-10-28
+# Author(s): Bounds
+
 from typing import List
 from uuid import UUID
 from .ProfileManagementServiceInterface import ProfileManagementServiceInterface as PMSI

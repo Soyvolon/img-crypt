@@ -1,3 +1,6 @@
+# Last Edit: 2022-10-28
+# Author(s): Bounds
+
 from abc import ABC, abstractmethod
 from typing import Tuple
 from ..Data import SettingsProfile

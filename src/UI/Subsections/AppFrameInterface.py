@@ -1,3 +1,6 @@
+# Last Edit: 2022-10-28
+# Author(s): Bounds
+
 from abc import ABC, abstractmethod
 import tkinter.ttk as ttk
 

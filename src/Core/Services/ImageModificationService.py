@@ -1,3 +1,6 @@
+# Last Edit: 2022-10-28
+# Author(s): Bounds
+
 from typing import Tuple
 from .ImageModificationServiceInterface import ImageModificationServiceInterface as IMSI
 from ..Data import SettingsProfile

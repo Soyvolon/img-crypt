@@ -1,3 +1,6 @@
+# Last Edit: 2022-10-28
+# Author(s): Bounds
+
 import os
 import tkinter.ttk as ttk
 import tkinter as tk

@@ -1,6 +1,7 @@
-from UI import ImageCryptApp as ica
+# Last Edit: 2022-10-28
+# Author(s): Bounds
 
-# TODO: Documentation.
+from UI import ImageCryptApp as ica
 
 class Startup(object):
     def __init__(self):
