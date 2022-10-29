@@ -153,28 +153,6 @@ class UserSettingsFrame(AppFrameInterface):
         # ---- end right frame code ----
 
     def pack_ui(self):
-        # TODO fix spacers and grid spacing on elements
-        # pack the grid!
-        # 7 rows, 10 cols      
-        #    0 1 2 3 4 5 6 7 8 9
-        #   |-------------------|
-        # 0 | A       | B       | A: user profile label, B: settings profile label
-        #   |-------------------|
-        # 1 | A   |B|C| D |E|F|G| A: user profile, B: user new, C: user del, D: setting profile, E: setting new, F: setting del, G: setting save
-        #   |-------------------|
-        # 2 | | | | | | | | | | | Nothing in this row
-        #   |-------------------|
-        # 3 | A       | B       | A: CharPerPixel label, B: pixel spacing label
-        #   |-------------------|
-        # 4 | A       | B       | A: CharPerPixel combo, B: pixel spacing entry
-        #   |-------------------|
-        # 5 | A       | B       | A: color settings label, B: hash key label
-        #   |-------------------|
-        # 6 | A       | B       | A: color settings combo, B: hash key entry
-        #   |-------------------|
-        # 4 has large left padding
-        # 5 has large right padding
-
         # configure the row/column weights
         self.columnconfigure(tuple(range(2)), weight=1, pad=4)
         self.rowconfigure(tuple(range(1)), weight=1, pad=4)
