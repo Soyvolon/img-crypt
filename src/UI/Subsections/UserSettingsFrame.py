@@ -2,8 +2,9 @@ import os
 import tkinter.ttk as ttk
 import tkinter as tk
 
-from .ImagePreviewFrame import ImagePreviewFrame
 from .AppFrameInterface import AppFrameInterface
+
+from Core.Data import *
 from Core.Services import ProfileManagementServiceInterface as PMSI
 
 class UserSettingsFrame(AppFrameInterface):
@@ -28,12 +29,19 @@ class UserSettingsFrame(AppFrameInterface):
 
     def initialize(self) -> None:
         # get the services we need
-        self.__imagePreview: ImagePreviewFrame = self.__services[ImagePreviewFrame]
         self.__profileService: PMSI = self.__services[PMSI]
+
+        # initialize the settings profile objects to defaults.
+        self.__refresh_user_profiles()
+        self.__refresh_settings_profiles()
 
         self.__initialized = True  
         # we dont need the whole service collection
-        self.__services = None      
+        self.__services = None    
+
+    def _error_if_not_initialized(self) -> None:
+        if not self.__initialized:
+            raise Exception("Frame Not Initialized")  
 
     def _build(self):
         # left frame
@@ -247,3 +255,121 @@ class UserSettingsFrame(AppFrameInterface):
             return float(val) > 0
         except:
             return False
+
+    # REGION Profiles
+    def __user_profile_changed(self):
+        self._error_if_not_initialized()
+        pass
+
+    def __new_user_profile_pressed(self):
+        self._error_if_not_initialized()
+        pass
+
+    def __delete_user_profile_pressed(self):
+        self._error_if_not_initialized()
+        pass
+
+    def __settings_profile_changed(self):
+        self._error_if_not_initialized()
+        pass
+
+    def __new_settings_profile_pressed(self):
+        self._error_if_not_initialized()
+        pass
+
+    def __delete_settings_profile_pressed(self):
+        self._error_if_not_initialized()
+        pass
+
+    def __save_settings_profile_pressed(self):
+        self._error_if_not_initialized()
+        pass
+    
+    # END REGION
+
+    # REGION Settings
+    def __chars_per_pixel_changed(self):
+        self._error_if_not_initialized()
+        pass
+
+    def __color_settings_changed(self):
+        self._error_if_not_initialized()
+        pass
+
+    def __pixel_spacing_changed(self):
+        self._error_if_not_initialized()
+        pass
+
+    def __hash_key_changed(self):
+        self._error_if_not_initialized()
+        pass
+
+    # END REGION
+
+    # REGION Public Methods
+    def get_current_settings(self) -> SettingsProfile:
+        """Returns the currently loaded settings profile.
+
+        Precondition:
+            This frame is initialized.
+
+        Args:
+            None
+
+        Returns:
+            SettingsProfile: The currently loaded settings profile.
+
+        Postcondition:
+            The settings profile object is returned.
+        """
+        pass
+    # END REGION
+
+    # REGION Private Methods
+    def __refresh_user_profiles(self) -> None:
+        """Loads all user profiles from the database and
+        resets the user profile list to contain only these
+        profiles and the default one.
+        """
+        pass
+
+    def __refresh_settings_profiles(self) -> None:
+        """Loads all settings profiles from the database for the
+        currently loaded user profiles and resets the settings profile 
+        list to contain only these profiles and the default one.
+        """
+        pass
+
+    def __get_default_user_profile(self) -> UserProfile:
+        """Gets the default user profile object and binds the
+        default settings profile object to it.
+
+        Returns:
+            UserProfile: The default user profile object.
+        """
+        if not self.__defaultUserProfile:
+            self.__defaultUserProfile = UserProfile('<default>')
+            settings = self.__get_default_settings_profile()
+            self.__defaultUserProfile.settingsProfiles.append(settings)
+            settings.userProfile = self.__defaultUserProfile
+
+        return self.__defaultUserProfile
+
+    def __get_default_settings_profile(self) -> SettingsProfile:
+        """Gets the default settings profile object.
+
+        Returns:
+            SettingsProfile: The default settings profile object.
+        """
+        if not self.__defaultSettingsProfile:
+            self.__defaultSettingsProfile = SettingsProfile(
+                name='<default>',
+                charPerPixel=3,
+                pixelSpacing=0,
+                colorSettings='Standard',
+                encryptKey=''
+            )
+
+        return self.__defaultSettingsProfile
+
+    # END REGION

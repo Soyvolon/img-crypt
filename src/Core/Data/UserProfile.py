@@ -1,6 +1,10 @@
+from uuid import UUID
 
 class UserProfile():
-    def __init__(self, name):
-        self.uuid = 0
-        self.name = name
+    def __init__(self, name: str):
+        # DB Properties
+        self.uuid: UUID = None
         self.settingsProfiles = []
+
+        # Properties
+        self.name = name

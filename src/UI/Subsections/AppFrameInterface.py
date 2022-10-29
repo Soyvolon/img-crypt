@@ -3,8 +3,17 @@ import tkinter.ttk as ttk
 
 class AppFrameInterface(ABC, ttk.Labelframe):
     @abstractmethod
+    def _error_if_not_initialized(self) -> None:
+        """Raises an error if the class is not initialized.
+
+        Raises:
+            Error: The error for not being initialized. 
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
     def initialize(self) -> None:
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def _build(self) -> None:
@@ -23,7 +32,7 @@ class AppFrameInterface(ABC, ttk.Labelframe):
         Postcondition:
             The child elements are initialized.
         """
-        pass
+        raise NotImplementedError()
     
     @abstractmethod
     def pack_ui(self) -> None:
@@ -42,4 +51,4 @@ class AppFrameInterface(ABC, ttk.Labelframe):
         Postcondition:
             All child elements are packed into proper UI displays
         """
-        pass
+        raise NotImplementedError()
