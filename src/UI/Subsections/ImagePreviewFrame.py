@@ -1,8 +1,16 @@
 # Last Edit: 2022-10-28
 # Author(s): Bounds
 
+from email.policy import default
 import tkinter as tk
 import tkinter.ttk as ttk
+from tkinter import filedialog as fd
+from tkinter import messagebox as mb
+
+import pathlib
+import io
+import os
+import shutil
 
 from Core.Data.SettingsProfile import SettingsProfile
 from .AppFrameInterface import AppFrameInterface
@@ -30,6 +38,9 @@ class ImagePreviewFrame(AppFrameInterface):
         # load services
         self.__imageService: IMSI = self.__services[IMSI]
 
+        self.__rawImage: pathlib.Path = None
+        self.__previewImage: pathlib.Path = None
+
         self.__initialized = True
         # dump the no-longer-needed service collection
         self.__services = None
@@ -55,7 +66,7 @@ class ImagePreviewFrame(AppFrameInterface):
         self.__imageCanvas.grid(row=0, column=0, padx=2, pady=2, sticky='nswe')
 
     # REGION Service Methods
-    def load_image(self, filePath: str) -> None:
+    def load_image(self) -> None:
         """Loads an image into the preview and registers the internal
         changes version for edit previews.
 
@@ -65,7 +76,7 @@ class ImagePreviewFrame(AppFrameInterface):
             None
 
         Args:
-            filePath (str): The file path to the image to load.
+            None
 
         Returns:
             None
@@ -76,7 +87,46 @@ class ImagePreviewFrame(AppFrameInterface):
             The original image is not modified.
         """
         self._error_if_not_initialized()
-        pass
+        try:
+            with fd.askopenfile(mode='r', filetypes=[('Single Image', '.png'), ('Batch Images', '.gif')]) as ogImage:
+                if ogImage:
+                    # the image is loaded, so we are going to continue
+                    # by getting the file path object
+                    pathObj = pathlib.Path(ogImage.name)
+
+                    # if the pathObj has a proper suffix
+                    if pathObj.suffix == '.png' or pathObj.suffix == '.gif':
+                        # we can load it.
+                        # save the path object into the raw image variable
+                        self.__rawImage = pathObj
+                        # then we create our temp dir if its not there
+                        os.makedirs('tmp', exist_ok=True)
+                        # and then create the temp image file path for preview/modification
+                        tmpImageName = f'preview_image{pathObj.suffix}'
+                        self.__previewImage = pathlib.Path(os.path.join('tmp', tmpImageName))
+
+                        # reset the preview file by copying the og to the preview
+                        # location
+                        self.__reset_preview_file()
+                        # and finally update the image to its raw value
+                        # by passing none
+                        self.update_image(None, None)
+                    else:
+                        # if the format is bad, reset the raw image
+                        self.__rawImage = None
+                        # and preview image file paths
+                        self.__previewImage = None
+                        # and update the image, which will be set to
+                        # blank as there is no image file
+                        self.update_image(None, None)
+                        # then show an error to the user.
+                        mb.showerror(title="Image Load Error", 
+                            message="A file of type .gif or .png was unable to be loaded.")
+        except:
+            # we dont do anything here because this only catches
+            # an error if the file fails to open.
+            pass
+                    
 
     def update_image(self, profile: SettingsProfile, text: str) -> None:
         """Update the currently loaded image with the
@@ -98,9 +148,11 @@ class ImagePreviewFrame(AppFrameInterface):
             The preview image is updated to match the new settings/text.
         """
         self._error_if_not_initialized()
+        self.__previewImageObject = tk.PhotoImage(file=str(self.__previewImage))
+        self.__imageCanvas.create_image(0, 0, image=self.__previewImageObject, anchor='nw')
         pass
 
-    def save_image(self, filePath: str) -> None:
+    def save_image(self) -> None:
         """Saves the currently loaded image, with all modifications, as
         a new file.
 
@@ -108,7 +160,7 @@ class ImagePreviewFrame(AppFrameInterface):
             An image is loaded with load_image.
 
         Args:
-            filePath (str): The file path of the new image.
+            None
 
         Returns:
             None
@@ -137,4 +189,10 @@ class ImagePreviewFrame(AppFrameInterface):
         """
         self._error_if_not_initialized()
         pass
+
+    def __reset_preview_file(self):
+        if self.__rawImage and self.__previewImage:
+            # Copy the raw file to the preview file location.  
+            shutil.copy(str(self.__rawImage), str(self.__previewImage))
+
     # END REGION

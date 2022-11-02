@@ -3,6 +3,7 @@
 
 from tkinter import Text
 import tkinter.ttk as ttk
+from tkinter import filedialog as fd
 
 from .UserSettingsFrame import UserSettingsFrame
 from .ImagePreviewFrame import ImagePreviewFrame
@@ -146,10 +147,12 @@ class UserInputFrame(AppFrameInterface):
 
     def __load_image_pressed(self):
         self._error_if_not_initialized()
+        self.__imagePreview.load_image()
         pass
 
     def __save_image_pressed(self):
         self._error_if_not_initialized()
+        self.__imagePreview.save_image()
         pass
 
     def __load_text_pressed(self):
