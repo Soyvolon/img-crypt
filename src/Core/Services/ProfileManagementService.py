@@ -8,7 +8,9 @@ from ..Data import *
 
 class ProfileManagementService(PMSI):
     def __init__(self):
-        # TODO database conn work here.
+        # TODO database conn work here. This can be handled by a passed variable during init
+        # or just a hard coded string. Either way, its going to be a hard coded value - the user
+        # wont get a choice in this storage location.
         pass
 
     # -- User Profiles --
