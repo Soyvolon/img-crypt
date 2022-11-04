@@ -1,6 +1,7 @@
 # Last Edit: 2022-10-28
 # Author(s): Bounds, Hayden
 
+from typing import List
 from uuid import UUID
 from .UserProfile import UserProfile
 
@@ -16,3 +17,16 @@ class SettingsProfile():
         self.pixelSpacing = pixelSpacing
         self.colorSettings = colorSettings
         self.encryptKey = encryptKey
+
+    def get_header(self) -> List[int]:
+        # set a true flag if there is an encrypt key ...
+        hasEncrypt = int(self.encryptKey and not self.encryptKey.isspace())
+        # ... then return the header as a set of integers.
+        return [self.charPerPixel, 
+            self.pixelSpacing, 
+            self.colorSettings, 
+            hasEncrypt]
+
+    @staticmethod
+    def build_settings(headerPixels: List[(int, int, int)], encryptKey: str = None):
+        raise NotImplementedError()
