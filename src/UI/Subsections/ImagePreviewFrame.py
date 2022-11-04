@@ -6,6 +6,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import filedialog as fd
 from tkinter import messagebox as mb
+from PIL import Image, ImageTk
 
 import pathlib
 import io
@@ -40,6 +41,7 @@ class ImagePreviewFrame(AppFrameInterface):
 
         self.__rawImage: pathlib.Path = None
         self.__previewImage: pathlib.Path = None
+        self.__previewImageResized: Image = None
 
         self.__initialized = True
         # dump the no-longer-needed service collection
@@ -149,8 +151,11 @@ class ImagePreviewFrame(AppFrameInterface):
             The preview image is updated to match the new settings/text.
         """
         self._error_if_not_initialized()
-        self.__previewImageObject = tk.PhotoImage(file=str(self.__previewImage))
-        self.__imageCanvas.create_image(0, 0, image=self.__previewImageObject, anchor='nw')
+
+        # if we have a preview image
+        if self.__previewImage:
+            self.__create_image_object()
+            self.__imageCanvas.create_image(0, 0, image=self.__previewImageObject, anchor='nw')
         pass
 
     def save_image(self) -> None:
@@ -192,8 +197,54 @@ class ImagePreviewFrame(AppFrameInterface):
         pass
 
     def __reset_preview_file(self):
+        """Resets the preview image file.
+
+        Precondition:
+            None
+        
+        Args:
+            None
+
+        Returns:
+            None
+
+        Postcondition:
+            If both raw image and preview image are defined, the raw image is
+            copied to preview image.
+                OR
+            No action is taken.
+        """
         if self.__rawImage and self.__previewImage:
             # Copy the raw file to the preview file location.  
             shutil.copy(str(self.__rawImage), str(self.__previewImage))
+
+    def __create_image_object(self):
+        # if the raw image and preview image exist ...
+        if self.__rawImage and self.__previewImage:
+            # ... then open the preview image ...
+            with Image.open(str(self.__previewImage)) as img:
+                # ... and get the canvas size ...
+                # self.__imageCanvas.update()
+                canvx = self.__imageCanvas.winfo_width()
+                canvy = self.__imageCanvas.winfo_height()
+                ogx = img.width
+                ogy = img.height
+
+                ratio = 1
+                if ogx >= ogy:
+                    # larger width than height/equal height and width
+                    ratio = canvx / ogx
+                else:
+                    # larger height than width
+                    ratio = canvy / ogy
+
+                x = int(ogx * ratio)
+                y = int(ogy * ratio)
+
+                # ... then resize the image and save the copy for later use ...
+                self.__previewImageObject = ImageTk.PhotoImage(img.resize((x, y)))
+        else:
+            # ... otherwise get rid of the image data
+            self.__previewImageObject = None
 
     # END REGION
