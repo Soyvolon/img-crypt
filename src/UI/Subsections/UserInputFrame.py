@@ -109,6 +109,24 @@ class UserInputFrame(AppFrameInterface):
         self.__saveImage.grid(column=0, row=1, columnspan=4, sticky="nswe", padx=3, pady=3)
         self.__saveText.grid(column=4, row=1, sticky="nswe", padx=3, pady=3)
 
+    def get_current_text(self) -> str:
+        """Gets the current text in the input box.
+
+        Precondition:
+            This frame is initialize
+            
+        Args:
+            None
+
+        Returns:
+            (str): The current text
+
+        Postcondition:
+            The returned value matches the inputted text.
+        """
+        self._error_if_not_initialized()
+        return self.__textInput.get('1.0', 'end')[:-1]
+
     def __validate_text_input(self, event) -> None:
         """
         Validate new text input into the user input text box
@@ -125,7 +143,7 @@ class UserInputFrame(AppFrameInterface):
         Postcondition:
             The text box has only ASCII text in it
         """
-        curText: str = self.__textInput.get('1.0', 'end')[:-1]
+        curText = self.get_current_text()
         if not curText.isascii():
             # get the rows of text
             curTextRows = curText.splitlines(True)

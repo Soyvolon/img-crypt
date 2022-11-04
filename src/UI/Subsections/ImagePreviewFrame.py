@@ -14,7 +14,7 @@ import os
 import shutil
 
 from Core.Data.SettingsProfile import SettingsProfile
-from .AppFrameInterface import AppFrameInterface
+from . import UserInputFrame, UserSettingsFrame, AppFrameInterface
 from Core.Services import ImageModificationServiceInterface as IMSI
 
 class ImagePreviewFrame(AppFrameInterface):
@@ -38,6 +38,8 @@ class ImagePreviewFrame(AppFrameInterface):
     def initialize(self) -> None:
         # load services
         self.__imageService: IMSI = self.__services[IMSI]
+        self.__inputFrame: UserInputFrame = self.__services[UserInputFrame]
+        self.__settingFrame: UserSettingsFrame = self.__services[UserSettingsFrame]
 
         self.__rawImage: pathlib.Path = None
         self.__previewImage: pathlib.Path = None
@@ -69,6 +71,12 @@ class ImagePreviewFrame(AppFrameInterface):
 
     # REGION Service Methods
     def load_image(self) -> None:
+        # TODO this needs to be updated to support detecting if an image 
+        # has hidden text and either loading it for preview/results 
+        # depending on the situation. Should move existing code
+        # to a new method and let this public method handle just
+        # detection and routing to the proper private method to either
+        # load preview or load file data.
         """Loads an image into the preview and registers the internal
         changes version for edit previews.
 
@@ -113,15 +121,9 @@ class ImagePreviewFrame(AppFrameInterface):
                         self.__reset_preview_file()
                         # and finally update the image to its raw value
                         # by passing none
-                        self.update_image(None, None)
+                        self.update_image()
                     else:
-                        # if the format is bad, reset the raw image
-                        self.__rawImage = None
-                        # and preview image file paths
-                        self.__previewImage = None
-                        # and update the image, which will be set to
-                        # blank as there is no image file
-                        self.update_image(None, None)
+                        self.clear_image()
                         # then show an error to the user.
                         mb.showerror(title="Image Load Error", 
                             message="A file of type .gif or .png was unable to be loaded.")
@@ -131,7 +133,7 @@ class ImagePreviewFrame(AppFrameInterface):
             pass
                     
 
-    def update_image(self, profile: SettingsProfile, text: str) -> None:
+    def update_image(self) -> None:
         """Update the currently loaded image with the
         provided settings profile
 
@@ -139,10 +141,7 @@ class ImagePreviewFrame(AppFrameInterface):
             An image is loaded with load_image.
 
         Args:
-            profile (SettingsProfile): The settings profile that contains how
-            the image will be modified.
-
-            text (str): The text to use in the modification.
+            None
 
         Returns:
             None
@@ -152,11 +151,26 @@ class ImagePreviewFrame(AppFrameInterface):
         """
         self._error_if_not_initialized()
 
-        # if we have a preview image
-        if self.__previewImage:
-            self.__create_image_object()
+        # try to get the active profile
+        curText = self.__inputFrame.get_current_text()
+
+        # try to get the existing text
+        curSettings = self.__settingFrame.get_current_settings()
+
+        # then, if we have active settings,
+        # run it through the image service.
+        if curSettings:
+            self.__imageService.hide_text_in_image(curSettings, curText, 
+                str(self.__rawImage), str(self.__previewImage))
+
+        self.__create_image_object()
+        # make sure an image object was created
+        if self.__previewImageObject:
+            # and add it to the canvas
             self.__imageCanvas.create_image(0, 0, image=self.__previewImageObject, anchor='nw')
-        pass
+        else:
+            # otherwise, get rid of all data
+            self.clear_image()
 
     def save_image(self) -> None:
         """Saves the currently loaded image, with all modifications, as
@@ -194,6 +208,10 @@ class ImagePreviewFrame(AppFrameInterface):
             and the preview is returned to a blank slate.
         """
         self._error_if_not_initialized()
+        self.__previewImage = None
+        self.__rawImage = None
+        self.__create_image_object()
+        self.__imageCanvas.delete('all')
         pass
 
     def __reset_preview_file(self):
@@ -219,8 +237,23 @@ class ImagePreviewFrame(AppFrameInterface):
             shutil.copy(str(self.__rawImage), str(self.__previewImage))
 
     def __create_image_object(self):
-        # if the raw image and preview image exist ...
-        if self.__rawImage and self.__previewImage:
+        """Creates the image object to display as it needs to be resized.
+
+        Precondition:
+            The preview image has been created.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Postcondition:
+            The image object is a copy of the preview image, resized to fit the display
+            canvas while keeping its aspect ratio.
+        """
+        # if the preview image exists ...
+        if self.__previewImage:
             # ... then open the preview image ...
             with Image.open(str(self.__previewImage)) as img:
                 # ... and get the canvas size ...
