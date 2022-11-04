@@ -88,6 +88,7 @@ class ImagePreviewFrame(AppFrameInterface):
         """
         self._error_if_not_initialized()
         try:
+            # ask to open a file with the windows file picker
             with fd.askopenfile(mode='r', filetypes=[('Single Image', '.png'), ('Batch Images', '.gif')]) as ogImage:
                 if ogImage:
                     # the image is loaded, so we are going to continue
