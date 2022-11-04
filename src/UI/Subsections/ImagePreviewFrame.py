@@ -227,9 +227,11 @@ class ImagePreviewFrame(AppFrameInterface):
                 # self.__imageCanvas.update()
                 canvx = self.__imageCanvas.winfo_width()
                 canvy = self.__imageCanvas.winfo_height()
+                # ... then the image size ...
                 ogx = img.width
                 ogy = img.height
 
+                # ... then find the adjustment ratio to make it fit ...
                 ratio = 1
                 if ogx >= ogy:
                     # larger width than height/equal height and width
@@ -238,6 +240,7 @@ class ImagePreviewFrame(AppFrameInterface):
                     # larger height than width
                     ratio = canvy / ogy
 
+                # ... then get the final size values ...
                 x = int(ogx * ratio)
                 y = int(ogy * ratio)
 
