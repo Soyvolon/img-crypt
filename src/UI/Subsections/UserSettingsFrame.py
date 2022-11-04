@@ -34,9 +34,16 @@ class UserSettingsFrame(AppFrameInterface):
         # get the services we need
         self.__profileService: PMSI = self.__services[PMSI]
 
+        # create the objects for profile management
+        self.__selectedUserProfile = None
+        self.__selectedSettingsProfile = None
+        self.__userProfileList = []
+        self.__settingsProfileList = []
+
         # initialize the settings profile objects to defaults.
+        # this method will also reload the settings
+        # profiles for the selected user profile
         self.__refresh_user_profiles()
-        self.__refresh_settings_profiles()
 
         self.__initialized = True  
         # we dont need the whole service collection
@@ -325,7 +332,8 @@ class UserSettingsFrame(AppFrameInterface):
         Postcondition:
             The settings profile object is returned.
         """
-        pass
+        self._error_if_not_initialized()
+        return self.__selectedSettingsProfile
     # END REGION
 
     # REGION Private Methods
@@ -334,14 +342,32 @@ class UserSettingsFrame(AppFrameInterface):
         resets the user profile list to contain only these
         profiles and the default one.
         """
-        pass
+        default = self.__get_default_user_profile()
+        # TODO load profiles from database
+        # TODO add rest of profiles from db
+        self.__userProfileList = [default] 
+        if not self.__selectedUserProfile in self.__userProfileList:
+            self.__selectedUserProfile = self.__defaultUserProfile
+
+        # TODO reload dropdown data
+
+        self.__refresh_settings_profiles()
 
     def __refresh_settings_profiles(self) -> None:
         """Loads all settings profiles from the database for the
         currently loaded user profiles and resets the settings profile 
         list to contain only these profiles and the default one.
         """
-        pass
+        default = self.__get_default_settings_profile()
+        # TODO load profiles from database. Needs to be specific to the currently selected
+        # user profile
+        # TODO add rest of profiles from db
+        self.__settingsProfileList = [default]
+        if not self.__selectedSettingsProfile in self.__settingsProfileList:
+            self.__selectedSettingsProfile = self.__defaultSettingsProfile
+            # TODO update input fields
+
+        # TODO reload dropdown data
 
     def __get_default_user_profile(self) -> UserProfile:
         """Gets the default user profile object and binds the
