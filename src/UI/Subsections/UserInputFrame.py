@@ -5,8 +5,6 @@ from tkinter import Text
 import tkinter.ttk as ttk
 from tkinter import filedialog as fd
 
-from .UserSettingsFrame import UserSettingsFrame
-from .ImagePreviewFrame import ImagePreviewFrame
 from .AppFrameInterface import AppFrameInterface
 
 class UserInputFrame(AppFrameInterface):
@@ -26,6 +24,9 @@ class UserInputFrame(AppFrameInterface):
         
     def initialize(self) -> None:
         # get the services we need.
+        from .UserSettingsFrame import UserSettingsFrame
+        from .ImagePreviewFrame import ImagePreviewFrame
+        
         self.__imagePreview: ImagePreviewFrame = self.__services[ImagePreviewFrame]
         self.__userSettings: UserSettingsFrame = self.__services[UserSettingsFrame]
 

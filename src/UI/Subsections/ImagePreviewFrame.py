@@ -13,9 +13,8 @@ import io
 import os
 import shutil
 
+from .AppFrameInterface import AppFrameInterface
 from Core.Data.SettingsProfile import SettingsProfile
-from . import UserInputFrame, UserSettingsFrame, AppFrameInterface
-from Core.Services import ImageModificationServiceInterface as IMSI
 
 class ImagePreviewFrame(AppFrameInterface):
     def __init__(self, parent, services):
@@ -37,6 +36,10 @@ class ImagePreviewFrame(AppFrameInterface):
 
     def initialize(self) -> None:
         # load services
+        from .UserSettingsFrame import UserSettingsFrame
+        from .UserInputFrame import UserInputFrame
+        from Core.Services import ImageModificationServiceInterface as IMSI
+
         self.__imageService: IMSI = self.__services[IMSI]
         self.__inputFrame: UserInputFrame = self.__services[UserInputFrame]
         self.__settingFrame: UserSettingsFrame = self.__services[UserSettingsFrame]
@@ -160,8 +163,13 @@ class ImagePreviewFrame(AppFrameInterface):
         # then, if we have active settings,
         # run it through the image service.
         if curSettings:
-            self.__imageService.hide_text_in_image(curSettings, curText, 
-                str(self.__rawImage), str(self.__previewImage))
+            try:
+                self.__imageService.hide_text_in_image(curSettings, curText, 
+                    str(self.__rawImage), str(self.__previewImage))
+            except:
+                mb.showerror("Image Processing Error", f'Failed to hide text in image.')
+                self.clear_image()
+                return
 
         self.__create_image_object()
         # make sure an image object was created

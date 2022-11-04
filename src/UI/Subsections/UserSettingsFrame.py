@@ -8,7 +8,6 @@ import tkinter as tk
 from .AppFrameInterface import AppFrameInterface
 
 from Core.Data import *
-from Core.Services import ProfileManagementServiceInterface as PMSI
 
 class UserSettingsFrame(AppFrameInterface):
     def __init__(self, parent, services):
@@ -32,6 +31,8 @@ class UserSettingsFrame(AppFrameInterface):
 
     def initialize(self) -> None:
         # get the services we need
+        from Core.Services import ProfileManagementServiceInterface as PMSI
+
         self.__profileService: PMSI = self.__services[PMSI]
 
         # create the objects for profile management
@@ -39,6 +40,8 @@ class UserSettingsFrame(AppFrameInterface):
         self.__selectedSettingsProfile = None
         self.__userProfileList = []
         self.__settingsProfileList = []
+        self.__defaultSettingsProfile = None
+        self.__defaultUserProfile = None
 
         # initialize the settings profile objects to defaults.
         # this method will also reload the settings
