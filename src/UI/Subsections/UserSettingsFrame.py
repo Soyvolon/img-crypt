@@ -1,5 +1,5 @@
-# Last Edit: 2022-10-28
-# Author(s): Bounds
+# Last Edit: 2022-11-04
+# Author(s): Bounds, Hayden
 
 import os
 import tkinter.ttk as ttk
@@ -8,6 +8,7 @@ import tkinter as tk
 from .AppFrameInterface import AppFrameInterface
 
 from Core.Data import *
+from Core.Services import *
 
 class UserSettingsFrame(AppFrameInterface):
     def __init__(self, parent, services):
@@ -84,7 +85,8 @@ class UserSettingsFrame(AppFrameInterface):
         # user profile add button
         self.__addUserProfile = ttk.Button(
             master=self.__userProfileFrame,
-            image=self.__addImage
+            image=self.__addImage,
+            command=self.__new_user_profile_pressed
         )
 
         # user profile delete button
@@ -275,7 +277,8 @@ class UserSettingsFrame(AppFrameInterface):
         pass
 
     def __new_user_profile_pressed(self):
-        self._error_if_not_initialized()
+        PMS = ProfileManagementService()
+        PMS.create_user_profile("test")
         pass
 
     def __delete_user_profile_pressed(self):
