@@ -24,14 +24,7 @@ class ProfileManagementServiceInterface(ABC):
             A new user profile with a matching name is saved
             in the local database.
         """
-        newProfile = UserProfile(name)
-        c = conn.cursor()
-        c.execute(''' INSERT INTO UserProfiles(Name) VALUES (?)''', (name,))
-        conn.commit()
-        newProfile.uuid = c.lastrowid
-        print(newProfile.uuid)
-        #Unsure what to do with the UUID part of creation
-        #When using this method, leave out the key part UUID should autogenerate
+        raise NotImplementedError()
 
     @abstractmethod
     def delete_user_profile(self, key: UUID) -> bool:
@@ -50,8 +43,6 @@ class ProfileManagementServiceInterface(ABC):
             The user profile matching the key is no longer
             saved in the dictionary nor in memory.
         """
-        keyTup = (key,)
-        self.c.execute(''' DELETE FROM UserProfiles WHERE Key=?''', keyTup)
         raise NotImplementedError()
 
     @abstractmethod
@@ -70,8 +61,6 @@ class ProfileManagementServiceInterface(ABC):
         Postcondition:
             None
         """
-        self.c.execute('''SELECT * FROM UserProfiles''')
-        return self.c.fetchall()
         raise NotImplementedError()
 
     @abstractmethod
@@ -90,8 +79,6 @@ class ProfileManagementServiceInterface(ABC):
             The user profile object has all it's settings profiles
             propagated from the database.
         """
-        keyTup = (profile.UUID,)
-        self.c.execute('''SELECT * FROM SettingsProfiles WHERE UserProfile=?''', keyTup)
         raise NotImplementedError()
 
     @abstractmethod
@@ -111,10 +98,6 @@ class ProfileManagementServiceInterface(ABC):
         Postcondition:
             A new settings profile is present in the database.
         """
-        newProfile = SettingsProfile(name, 0, 0, "", "")
-        #Unsure how you want me to deal with UUID generation
-        values = ('', name, '', '', '', '', parentKey)
-        self.c.execute('''INSERT INTO SettingsProfiles(Key, Name, CharPerPixel, PixelSpacing, ColorSettings, EncryptionKey, UserProfile) VALUES(?,?,?,?,?,?,?)''', values)
         raise NotImplementedError()
 
     @abstractmethod
@@ -133,8 +116,6 @@ class ProfileManagementServiceInterface(ABC):
         Postcondition:
             The present key no longer exists in the database.
         """
-        keyTup = (key,)
-        self.c.execute(''' DELETE FROM SettingsProfiles WHERE Key=?''', keyTup)
         raise NotImplementedError()
 
     @abstractmethod
@@ -153,8 +134,6 @@ class ProfileManagementServiceInterface(ABC):
         Postcondition:
             None
         """
-        self.c.execute('''SELECT * FROM SettingsProfiles''')
-        return self.c.fetchall()
         raise NotImplementedError()
 
     @abstractmethod

@@ -29,30 +29,45 @@ class ProfileManagementService(PMSI):
 
     # -- User Profiles --
     def create_user_profile(self, name: str) -> UserProfile:
-        return super().create_user_profile(name, self.conn)
+        newProfile = UserProfile(name)
+        c = self.conn.cursor()
+        c.execute(''' INSERT INTO UserProfiles(Name) VALUES (?)''', (name,))
+        self.conn.commit()
+        newProfile.uuid = c.lastrowid
+        print(newProfile.uuid)
+        #Unsure what to do with the UUID part of creation
+        #When using this method, leave out the key part UUID should autogenerate
 
     def delete_user_profile(self, key: UUID) -> bool:
-        return super().delete_user_profile(key)
+        keyTup = (key,)
+        self.c.execute(''' DELETE FROM UserProfiles WHERE Key=?''', keyTup)
 
     def get_all_user_profiles(self) -> List[UserProfile]:
-        return super().get_all_user_profiles()
+        self.c.execute('''SELECT * FROM UserProfiles''')
+        return self.c.fetchall()
 
     def get_settings_profiles_for_user(self, profile: UserProfile) -> None:
-        return super().get_settings_profiles_for_user(profile)
+        keyTup = (profile.UUID,)
+        self.c.execute('''SELECT * FROM SettingsProfiles WHERE UserProfile=?''', keyTup)
 
     # -- -- --
     # -- Settings Profiles --
     def create_settings_profile(self, name: str, parentKey: UUID) -> SettingsProfile:
-        return super().create_settings_profile(name, parentKey)
+        newProfile = SettingsProfile(name, 0, 0, "", "")
+        #Unsure how you want me to deal with UUID generation
+        values = ('', name, '', '', '', '', parentKey)
+        self.c.execute('''INSERT INTO SettingsProfiles(Key, Name, CharPerPixel, PixelSpacing, ColorSettings, EncryptionKey, UserProfile) VALUES(?,?,?,?,?,?,?)''', values)
 
     def delete_settings_profile(self, key: UUID) -> bool:
-        return super().delete_settings_profile(key)
+        keyTup = (key,)
+        self.c.execute(''' DELETE FROM SettingsProfiles WHERE Key=?''', keyTup)
 
     def update_settings_profile(updatedProfile: SettingsProfile) -> bool:
         return super().update_settings_profile()
 
     def get_all_settings_profiles(self) -> List[SettingsProfile]:
-        return super().get_all_settings_profiles()
+        self.c.execute('''SELECT * FROM SettingsProfiles''')
+        return self.c.fetchall()
 
     def get_settings_profile(self, key: UUID) -> SettingsProfile:
         return super().get_settings_profile(key)

@@ -1,7 +1,7 @@
 # Last Edit: 2022-10-28
 # Author(s): Bounds, Hayden
 
-from typing import List
+from typing import List, Tuple
 from uuid import UUID
 from .UserProfile import UserProfile
 
@@ -28,5 +28,5 @@ class SettingsProfile():
             hasEncrypt]
 
     @staticmethod
-    def build_settings(headerPixels: List[(int, int, int)], encryptKey: str = None):
+    def build_settings(headerPixels: List[Tuple[int, int, int]], encryptKey: str = None):
         raise NotImplementedError()
