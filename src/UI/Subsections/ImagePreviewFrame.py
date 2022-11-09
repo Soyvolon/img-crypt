@@ -14,7 +14,8 @@ import os
 import shutil
 
 from .AppFrameInterface import AppFrameInterface
-from Core.Data.SettingsProfile import SettingsProfile
+from Core.Data import SettingsProfile
+from Core.Error import ImageProcessingError
 
 class ImagePreviewFrame(AppFrameInterface):
     def __init__(self, parent, services):
@@ -136,7 +137,7 @@ class ImagePreviewFrame(AppFrameInterface):
             pass
                     
 
-    def update_image(self) -> None:
+    def update_image(self, suppressErrors: bool = True) -> None:
         """Update the currently loaded image with the
         provided settings profile
 
@@ -166,8 +167,12 @@ class ImagePreviewFrame(AppFrameInterface):
             try:
                 self.__imageService.hide_text_in_image(curSettings, curText, 
                     str(self.__rawImage), str(self.__previewImage))
+            except ImageProcessingError as ipe:
+                if (not suppressErrors):
+                    mb.showerror("Image Processing Error", ipe.message)
+                return
             except:
-                mb.showerror("Image Processing Error", f'Failed to hide text in image.')
+                mb.showerror("Image Processing Error", f'Failed to hide text in image. An unknown error occurred.')
                 self.clear_image()
                 return
 

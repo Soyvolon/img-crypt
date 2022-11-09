@@ -401,7 +401,7 @@ class UserSettingsFrame(AppFrameInterface):
                 name='<default>',
                 charPerPixel=3,
                 pixelSpacing=0,
-                colorSettings='Standard',
+                colorSettings=SettingsProfile.COLOR_STANDARD,
                 encryptKey=''
             )
 

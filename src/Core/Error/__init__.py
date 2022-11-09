@@ -1,0 +1,1 @@
+from .ImageProcessingError import ImageProcessingError
