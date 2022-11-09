@@ -6,7 +6,10 @@ from uuid import UUID
 from .UserProfile import UserProfile
 
 class SettingsProfile():
-    def __init__(self, name: str, charPerPixel: int, pixelSpacing: int, colorSettings: str, encryptKey: str):
+    COLOR_STANDARD = 0
+    COLOR_UNIQUE = 1
+
+    def __init__(self, name: str, charPerPixel: int, pixelSpacing: int, colorSettings: int, encryptKey: str):
         # DB Properties
         self.uuid: UUID = None
         self.userProfile: UserProfile = None
@@ -20,7 +23,10 @@ class SettingsProfile():
 
     def get_header(self) -> List[int]:
         # set a true flag if there is an encrypt key ...
-        hasEncrypt = int(self.encryptKey and not self.encryptKey.isspace())
+        if (self.encryptKey and not self.encryptKey.isspace()):
+            hasEncrypt = 1 # True
+        else:
+            hasEncrypt = 0 # False
         # ... then return the header as a set of integers.
         return [self.charPerPixel, 
             self.pixelSpacing, 
