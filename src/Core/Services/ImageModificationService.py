@@ -71,11 +71,24 @@ class ImageModificationService(IMSI):
             # ... then define the pixel counter used to differentiate
             # between header and actual pixel values ...
             pixel_count = 0
+            skip_counter = profile.pixelSpacing
+            text_iter = iter(text_values)
+            out_of_text = False
             for pindex in range(len(pixels)):
+                if out_of_text:
+                    break
+
                 # ... first, get the pixel ...
                 pixel = pixels[pindex]
-                def assign_to_pixel(place: int, val: int):
-                    pixel = tuple([pixel[i] if i != place else val for i in range(len(pixel))])
+                def update_pixel(pixel: Tuple, placeDict) -> Tuple:
+                    update = []
+                    for i in range(len(pixel)):
+                        if i in placeDict:
+                            update.append(placeDict[i])
+                        else:
+                            update.append(pixel[i])
+
+                    return tuple(update)
 
                 # ... determine if this is a header value or not ...
                 if pixel_count < len(header):
@@ -83,15 +96,56 @@ class ImageModificationService(IMSI):
                     # new value ...
                     val = self.__modify_int(pixel[2], 0, header[pixel_count])
                     # ... then assign it to the pixel ...
-                    assign_to_pixel(2, val)
+                    pixel = update_pixel(pixel, {2: val})
                     # ... then up the pixel counter ...
                     pixel_count += 1
                 else:
                     # ... otherwise, compute the pixel data ...
-                    pass
+                    # ... if we have a skip, then skip this pixel.
+                    # In that regard, we always start with the skip ...
+                    if skip_counter > 1:
+                        # ... drop the counter by 1 ...
+                        skip_counter -= 1
+                        # ... and go to the next iteration ...
+                        continue
 
-                # ... finally, save the pixel
+                    # ... otherwise, lets compute some pixel data ...
+
+                    # ... for each char in the pixel ...
+                    for charNum in range(profile.charPerPixel):
+                        # ... get the raw char value ...
+                        charRaw: int = next(text_iter, -1)
+                        # ... and if its less than 0 (fail code) ...
+                        if charRaw < 0:
+                            # ... then tell the pixel loop to quit ...
+                            out_of_text = True
+                            break
+
+                        # ... otherwise, get the three digit int
+                        # string ...
+                        charString = '{0:0=3d}'.format(charRaw)
+                        # ... and break that into three separate chars ...
+                        chars = [int(x) for x in charString]
+                        # ... then get modified r,g,b values for the pixel ...
+                        r = self.__modify_int(pixel[0], charNum, chars[0])
+                        g = self.__modify_int(pixel[1], charNum, chars[1])
+                        b = self.__modify_int(pixel[2], charNum, chars[2])
+
+                        # ... then update the pixel with new r,g,b values ...
+                        pixel = update_pixel(pixel, {
+                            0: r,
+                            1: g,
+                            2: b
+                        })
+
+                # ... finally, save the pixel ...
                 pixels[pindex] = pixel
+            
+            # ... once we have modified all our pixels,
+            # lets update our image ...
+            source.putdata(pixels)
+            # ... then save the image ...
+            source.save(outputPath)
         
 
     def reveal_text_in_image(self, inputPath: str, encryptKey: str = "") -> Tuple[SettingsProfile, str]:

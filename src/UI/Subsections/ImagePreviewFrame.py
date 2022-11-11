@@ -202,7 +202,18 @@ class ImagePreviewFrame(AppFrameInterface):
             The preview image is saved to the local disk at filePath.
         """
         self._error_if_not_initialized()
-        pass
+
+        self.update_image(False)
+
+        if self.__previewImage:
+            fileType = self.__previewImage.suffix
+            path = fd.asksaveasfilename(filetypes=[("Source Type", fileType)])
+            with Image.open(self.__previewImage) as prev:
+                if not path.endswith(fileType):
+                    path += fileType
+                prev.save(path)
+                mb.showinfo('', 'File Saved Successfully.')
+                self.clear_image()
 
     def clear_image(self) -> None:
         """Clears the currently loaded image.

@@ -399,8 +399,8 @@ class UserSettingsFrame(AppFrameInterface):
         if not self.__defaultSettingsProfile:
             self.__defaultSettingsProfile = SettingsProfile(
                 name='<default>',
-                charPerPixel=3,
-                pixelSpacing=0,
+                charPerPixel=1,
+                pixelSpacing=1,
                 colorSettings=SettingsProfile.COLOR_STANDARD,
                 encryptKey=''
             )
