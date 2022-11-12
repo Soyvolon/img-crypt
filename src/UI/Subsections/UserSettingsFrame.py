@@ -43,6 +43,8 @@ class UserSettingsFrame(AppFrameInterface):
         self.__settingsProfileList = []
         self.__defaultSettingsProfile = None
         self.__defaultUserProfile = None
+        self.__userProfileNames = []
+        self.__settingsProfileNames = []
 
         # initialize the settings profile objects to defaults.
         # this method will also reload the settings
@@ -79,7 +81,8 @@ class UserSettingsFrame(AppFrameInterface):
 
         # user profile selection
         self.__userProfile = ttk.Combobox(
-            master=self.__userProfileFrame
+            master=self.__userProfileFrame,
+            postcommand=self.__user_profile_changed
         )
 
         # user profile add button
@@ -92,7 +95,8 @@ class UserSettingsFrame(AppFrameInterface):
         # user profile delete button
         self.__deleteUserProfile = ttk.Button(
             master=self.__userProfileFrame,
-            image=self.__deleteImage
+            image=self.__deleteImage,
+            command=self.__delete_user_profile_pressed
         )
 
         # color settings label
@@ -141,19 +145,22 @@ class UserSettingsFrame(AppFrameInterface):
 
         # settings profile selection
         self.__settingsProfile = ttk.Combobox(
-            master=self.__settingsProfileFrame
+            master=self.__settingsProfileFrame,
+            postcommand=self.__settings_profile_changed
         )
 
         # settings profile add button
         self.__addSettingsProfile = ttk.Button(
             master=self.__settingsProfileFrame,
-            image=self.__addImage
+            image=self.__addImage,
+            command = self.__new_settings_profile_pressed
         )
 
         # settings profile delete button
         self.__deleteSettingsProfile = ttk.Button(
             master=self.__settingsProfileFrame,
-            image=self.__deleteImage
+            image=self.__deleteImage,
+            command = self.__delete_settings_profile_pressed
         )
 
         # settings profile save button
@@ -273,29 +280,39 @@ class UserSettingsFrame(AppFrameInterface):
 
     # REGION Profiles
     def __user_profile_changed(self):
-        self._error_if_not_initialized()
-        pass
+        selectedProfileName = self.__userProfile.get()
+        for item in self.__userProfileList:
+            if item.name[0][0] == selectedProfileName:
+                self.__selectedUserProfile = item
+        self.__refresh_user_profiles()
+        self.__refresh_settings_profiles()
 
     def __new_user_profile_pressed(self):
-        PMS = ProfileManagementService()
-        PMS.create_user_profile("test")
-        pass
+        name = tk.simpledialog.askstring("Name of User Profile", "Enter the name of the User Profile")
+        if name != None:
+            self.__selectedUserProfile = self.__profileService.create_user_profile(name)
 
     def __delete_user_profile_pressed(self):
-        self._error_if_not_initialized()
-        pass
+        self.__profileService.delete_user_profile(self.__selectedUserProfile.uuid)
+        self.__refresh_user_profiles
 
     def __settings_profile_changed(self):
-        self._error_if_not_initialized()
-        pass
+        selectedProfileName = self.__settingsProfile.get()
+        for item in self.__settingsProfileList:
+            if item.name[0][0] == selectedProfileName:
+                print("success")
+                self.__selectedUserProfile = item
+        self.__refresh_user_profiles()
 
     def __new_settings_profile_pressed(self):
-        self._error_if_not_initialized()
-        pass
+        self.__user_profile_changed()
+        name = tk.simpledialog.askstring("Name of Settings Profile", "Enter the name of the Settings Profile")
+        if name != None:
+            self.__selectedSettingsProfile = self.__profileService.create_settings_profile(name, self.__selectedUserProfile.uuid)
 
     def __delete_settings_profile_pressed(self):
-        self._error_if_not_initialized()
-        pass
+        self.__profileService.delete_settings_profile(self.__selectedSettingsProfile.uuid)
+        self.__refresh_settings_profiles
 
     def __save_settings_profile_pressed(self):
         self._error_if_not_initialized()
@@ -340,6 +357,23 @@ class UserSettingsFrame(AppFrameInterface):
         """
         self._error_if_not_initialized()
         return self.__selectedSettingsProfile
+    def get_temp_profile(self, tempProfile: SettingsProfile) -> None:
+        """Fetches a temporary profile that will be pulled from an image header
+
+        Precondition:
+            This frame is initialized.
+
+        Args:
+            The temporary profile
+        
+        Returns:
+            None
+
+        Postcondition:
+            The temp profile is retrieved and  differentiated from more permanent profiles
+        """
+        self._error_if_not_initialized()
+        pass
     # END REGION
 
     # REGION Private Methods
@@ -352,10 +386,15 @@ class UserSettingsFrame(AppFrameInterface):
         # TODO load profiles from database
         # TODO add rest of profiles from db
         self.__userProfileList = [default] 
-        if not self.__selectedUserProfile in self.__userProfileList:
-            self.__selectedUserProfile = self.__defaultUserProfile
+        self.__userProfileList = self.__profileService.get_all_user_profiles()
+        self.__userProfileNames = []
+        for item in self.__userProfileList:
+            self.__userProfileNames.append(item.name[0][0])
+        '''if not self.__selectedUserProfile in self.__userProfileList:
+            self.__selectedUserProfile = self.__defaultUserProfile'''
 
         # TODO reload dropdown data
+        self.__userProfile['values'] = self.__userProfileNames
 
         self.__refresh_settings_profiles()
 
@@ -369,10 +408,21 @@ class UserSettingsFrame(AppFrameInterface):
         # user profile
         # TODO add rest of profiles from db
         self.__settingsProfileList = [default]
+        #Below code should be used once error in ProfileManagementService is fixed, see line 59 in PMS for more
+        '''
+        if self.__selectedUserProfile != None:
+            self.__settingsProfileList = self.__profileService.get_settings_profiles_for_user(self.__selectedUserProfile.uuid)
+            '''
+        self.__settingsProfileList = self.__profileService.get_all_settings_profiles()
+        self.__settingsProfileNames = []
+        for item in self.__settingsProfileList:
+            self.__settingsProfileNames.append(item.name[0][0])
+            '''
         if not self.__selectedSettingsProfile in self.__settingsProfileList:
             self.__selectedSettingsProfile = self.__defaultSettingsProfile
+            '''
             # TODO update input fields
-
+        self.__settingsProfile['values'] = self.__settingsProfileNames
         # TODO reload dropdown data
 
     def __get_default_user_profile(self) -> UserProfile:
