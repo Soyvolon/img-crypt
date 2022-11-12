@@ -50,13 +50,8 @@ class ImageModificationService(IMSI):
                     Make Characters Per Pixel larger, Pixel Spacing smaller, and/or input less text.")
 
             # ... otherwise, get the images pixels ...
-            pixels = list(source.getdata())
-            # ... then the image mode ...
-            if source.mode == "RGBA":
-                channels = 4
-            elif source.mode == "RGB":
-                channels = 3
-                    
+            pixels = source.getdata()
+            
             # ... then get a numpy array of the pixel values ...
             # pixel_values = numpy.array(pixels).reshape((h, w, channels))
 
