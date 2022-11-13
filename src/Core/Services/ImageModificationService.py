@@ -70,6 +70,7 @@ class ImageModificationService(IMSI):
             text_iter = iter(text_values)
             out_of_text = False
             for pindex in range(len(pixels)):
+            # ... if we are out of text, break out of the loop ...
                 if out_of_text:
                     break
 
@@ -142,12 +143,30 @@ class ImageModificationService(IMSI):
             # ... then save the image ...
             source.save(outputPath)
         
+    def reveal_text_in_image(self, inputPath: str, encryptKey: str = "", imageSettings: SettingsProfile = None) -> Tuple[SettingsProfile, str]:
+        return super().reveal_text_in_image(inputPath, encryptKey, imageSettings)
 
-    def reveal_text_in_image(self, inputPath: str, encryptKey: str = "") -> Tuple[SettingsProfile, str]:
-        return super().reveal_text_in_image(inputPath, encryptKey)
+    def get_header(self, inputPath: str) -> SettingsProfile:
+        # Create the pixel list ...
+        pixels = []
+        # ... then open the image ...
+        with Image.open(inputPath) as source:
+            # ... and for the length of the header ...
+            for i in range(SettingsProfile.HEAD_LENGTH):
+                try:
+                    # ... get the pixel data from the image ...
+                    pix = source.getpixel((i, 0))
+                    # ... then take only the first three colors and save them
+                    # to the pixels list ...
+                    pixels.append(tuple(pix[i] for i in range(len(pix)) if i < 3))
+                except:
+                    # ... if we get here, something went wrong,
+                    # and this image does not have a header ...
+                    return None
 
-    def is_encrypted(self, inputPath: str) -> bool:
-        return super().is_encrypted(inputPath)
+        # ... then build the settings profile from the pixels
+        # and return the result.
+        return SettingsProfile.build_settings(pixels)
 
     def __modify_int(self, start: int, place: int, new: int) -> int:
         """Modifies a digit in an integer

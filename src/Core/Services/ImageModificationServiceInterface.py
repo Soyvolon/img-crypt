@@ -28,8 +28,8 @@ class ImageModificationServiceInterface(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def reveal_text_in_image(self, inputPath: str, encryptKey: str = "") \
-        -> Tuple[SettingsProfile, str]:
+    def reveal_text_in_image(self, inputPath: str, encryptKey: str = "",
+        imageSettings: SettingsProfile = None) -> Tuple[SettingsProfile, str]:
         """
         Packs all UI objects for proper display in the application.
 
@@ -37,7 +37,10 @@ class ImageModificationServiceInterface(ABC):
             Image with text hidden inside is provided
 
         Args:
-            string inputPath, string encryptKey = ""
+            inputPath (str): The path to the image to open.
+            encryptKey (str): The key to decrypt the text data.
+            imageSettings (SettingsProfile): A settings profile. Leave null
+            to gather a settings profile from the image.
 
         Output:
             SettingsProfile profile, string text
@@ -48,17 +51,19 @@ class ImageModificationServiceInterface(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def is_encrypted(self, inputPath: str) -> bool:
-        """Checks an image to see if it has encrypted text.
+    def get_header(self, inputPath: str) -> SettingsProfile:
+        """Returns the header for an image at the provided path if
+        a header is present.
 
         Precondition:
-            The input path is an image path.
+            An image is present at inputPath
 
         Args:
-            inputPath (str): The path to the image to check.
+            inputPath (str): The path to check.
 
         Returns:
-            bool: True if the image file has encrypted text.
+            SettingsProfile: A settings profile if a header was
+            detected. None if no header is present.
 
         Postcondition:
             The image is unmodified but the file handle is closed.

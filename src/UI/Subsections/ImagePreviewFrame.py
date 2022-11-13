@@ -108,34 +108,63 @@ class ImagePreviewFrame(AppFrameInterface):
                     # the image is loaded, so we are going to continue
                     # by getting the file path object
                     pathObj = pathlib.Path(ogImage.name)
-
-                    # if the pathObj has a proper suffix
-                    if pathObj.suffix == '.png' or pathObj.suffix == '.gif':
-                        # we can load it.
-                        # save the path object into the raw image variable
-                        self.__rawImage = pathObj
-                        # then we create our temp dir if its not there
-                        os.makedirs('tmp', exist_ok=True)
-                        # and then create the temp image file path for preview/modification
-                        tmpImageName = f'preview_image{pathObj.suffix}'
-                        self.__previewImage = pathlib.Path(os.path.join('tmp', tmpImageName))
-
-                        # reset the preview file by copying the og to the preview
-                        # location
-                        self.__reset_preview_file()
-                        # and finally update the image to its raw value
-                        # by passing none
-                        self.update_image()
+            
+            # ... if the path object exists ...
+            if pathObj:
+                # ... try and get the header from the image ...
+                profile = self.__imageService.get_header(str(pathObj))
+                # ... and set the hidden text flag ...
+                load_hidden_text = False
+                # ... if the profile exists ...
+                if profile:
+                    # ... the ask if the user wants to load hidden text ...
+                    res = mb.askyesnocancel("Load Image", "Load hidden text from this image?")
+                    # ... and if res is not None
+                    if res != None:
+                        # ... set load to the response of the prompt ...
+                        load_hidden_text = res
                     else:
-                        self.clear_image()
-                        # then show an error to the user.
-                        mb.showerror(title="Image Load Error", 
-                            message="A file of type .gif or .png was unable to be loaded.")
+                        # ... if res is none, exit the method without doing
+                        # anything ...
+                        return
+
+                # ... and if the user wants to load hidden text ...
+                if load_hidden_text:
+                    # ... load that text ...
+                    self.__load_image_for_revealing(pathObj, profile)
+                else:
+                    # ... otherwise, load the image for hiding ...
+                    self.__load_image_for_hiding(pathObj)
         except:
-            # we dont do anything here because this only catches
-            # an error if the file fails to open.
-            pass
-                    
+            mb.showerror('Error', "An unexpected error occurred when trying \
+            to load the selected file.")
+        
+    def __load_image_for_hiding(self, pathObj: pathlib.Path):
+        # if the pathObj has a proper suffix
+        if pathObj.suffix == '.png' or pathObj.suffix == '.gif':
+            # we can load it.
+            # save the path object into the raw image variable
+            self.__rawImage = pathObj
+            # then we create our temp dir if its not there
+            os.makedirs('tmp', exist_ok=True)
+            # and then create the temp image file path for preview/modification
+            tmpImageName = f'preview_image{pathObj.suffix}'
+            self.__previewImage = pathlib.Path(os.path.join('tmp', tmpImageName))
+
+            # reset the preview file by copying the og to the preview
+            # location
+            self.__reset_preview_file()
+            # and finally update the image to its raw value
+            # by passing none
+            self.update_image()
+        else:
+            self.clear_image()
+            # then show an error to the user.
+            mb.showerror(title="Image Load Error", 
+                message="A file of type .gif or .png was unable to be loaded.")
+
+    def __load_image_for_revealing(self, pathObj: pathlib.Path, profile: SettingsProfile):
+        pass
 
     def update_image(self, suppressErrors: bool = True) -> None:
         """Update the currently loaded image with the
