@@ -409,14 +409,11 @@ class UserSettingsFrame(AppFrameInterface):
         # TODO add rest of profiles from db
         self.__settingsProfileList = [default]
         #Below code should be used once error in ProfileManagementService is fixed, see line 59 in PMS for more
-        '''
         if self.__selectedUserProfile != None:
-            self.__settingsProfileList = self.__profileService.get_settings_profiles_for_user(self.__selectedUserProfile.uuid)
-            '''
-        self.__settingsProfileList = self.__profileService.get_all_settings_profiles()
-        self.__settingsProfileNames = []
-        for item in self.__settingsProfileList:
-            self.__settingsProfileNames.append(item.name[0][0])
+            self.__profileService.get_settings_profiles_for_user(self.__selectedUserProfile)
+            self.__settingsProfileNames = []
+            for item in self.__selectedUserProfile.settingsProfiles:
+                self.__settingsProfileNames.append(item.name[0][0])
             '''
         if not self.__selectedSettingsProfile in self.__settingsProfileList:
             self.__selectedSettingsProfile = self.__defaultSettingsProfile
