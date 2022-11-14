@@ -55,9 +55,10 @@ class ProfileManagementService(PMSI):
         return userProfileList
 
 
-    def get_settings_profiles_for_user(self, parentKey: int) -> None:
+    def get_settings_profiles_for_user(self, profile: UserProfile) -> None:
         #Bug here, for some reason there's apparently a value error on the next line
-        self.c.execute('''SELECT key FROM SettingsProfiles WHERE UserProfile=?''', (int(parentKey[0])))
+        print(type(profile.uuid[0]))
+        self.c.execute('''SELECT key FROM SettingsProfiles WHERE UserProfile=?''', (int(profile.uuid[0])))
         settingsProfileList = []
         name = ''
         charPerPixel = 0
@@ -78,7 +79,7 @@ class ProfileManagementService(PMSI):
             profile = SettingsProfile(name, charPerPixel, pixelSpacing, colorSettings, encryptKey)
             profile.uuid = item
             settingsProfileList.append(profile)
-        return settingsProfileList
+        profile.settingsProfiles = settingsProfileList
 
     # -- -- --
     # -- Settings Profiles --
