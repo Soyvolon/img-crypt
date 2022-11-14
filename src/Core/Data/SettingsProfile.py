@@ -2,7 +2,6 @@
 # Author(s): Bounds, Hayden
 
 from typing import List, Tuple
-from uuid import UUID
 from .UserProfile import UserProfile
 
 class SettingsProfile():
@@ -14,7 +13,7 @@ class SettingsProfile():
     def __init__(self, name: str, charPerPixel: int, pixelSpacing: int, \
         colorSettings: int, encryptKey: str):
         # DB Properties
-        self.uuid: UUID = None
+        self.key: int = None
         self.userProfile: UserProfile = None
 
         # Properties

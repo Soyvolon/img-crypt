@@ -293,7 +293,7 @@ class UserSettingsFrame(AppFrameInterface):
             self.__selectedUserProfile = self.__profileService.create_user_profile(name)
 
     def __delete_user_profile_pressed(self):
-        self.__profileService.delete_user_profile(self.__selectedUserProfile.uuid)
+        self.__profileService.delete_user_profile(self.__selectedUserProfile.key)
         self.__refresh_user_profiles
 
     def __settings_profile_changed(self):
@@ -308,10 +308,10 @@ class UserSettingsFrame(AppFrameInterface):
         self.__user_profile_changed()
         name = tk.simpledialog.askstring("Name of Settings Profile", "Enter the name of the Settings Profile")
         if name != None:
-            self.__selectedSettingsProfile = self.__profileService.create_settings_profile(name, self.__selectedUserProfile.uuid)
+            self.__selectedSettingsProfile = self.__profileService.create_settings_profile(name, self.__selectedUserProfile.key)
 
     def __delete_settings_profile_pressed(self):
-        self.__profileService.delete_settings_profile(self.__selectedSettingsProfile.uuid)
+        self.__profileService.delete_settings_profile(self.__selectedSettingsProfile.key)
         self.__refresh_settings_profiles
 
     def __save_settings_profile_pressed(self):

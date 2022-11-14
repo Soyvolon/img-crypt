@@ -33,8 +33,8 @@ class ProfileManagementService(PMSI):
         c = self.conn.cursor()
         c.execute(''' INSERT INTO UserProfiles(Name) VALUES (?)''', (name,))
         self.conn.commit()
-        newProfile.uuid = c.lastrowid
-        print(newProfile.uuid)
+        newProfile.key = c.lastrowid
+        print(newProfile.key)
         #Unsure what to do with the UUID part of creation
         #When using this method, leave out the key part UUID should autogenerate
 
@@ -50,15 +50,15 @@ class ProfileManagementService(PMSI):
             self.c.execute("""SELECT name FROM UserProfiles WHERE Key=?""", (item[0],))
             name = self.c.fetchall()
             profile = UserProfile(name)
-            profile.uuid = item
+            profile.key = item
             userProfileList.append(profile)
         return userProfileList
 
 
     def get_settings_profiles_for_user(self, profile: UserProfile) -> None:
         #Bug here, for some reason there's apparently a value error on the next line
-        print(type(profile.uuid[0]))
-        self.c.execute('''SELECT key FROM SettingsProfiles WHERE UserProfile=?''', (int(profile.uuid[0])))
+        print(type(profile.key[0]))
+        self.c.execute('''SELECT key FROM SettingsProfiles WHERE UserProfile=?''', (profile.key))
         settingsProfileList = []
         name = ''
         charPerPixel = 0
@@ -77,7 +77,7 @@ class ProfileManagementService(PMSI):
             self.c.execute("""SELECT EncryptionKey FROM SettingsProfiles WHERE Key=?""", (item[0],))
             encryptKey = self.c.fetchall()
             profile = SettingsProfile(name, charPerPixel, pixelSpacing, colorSettings, encryptKey)
-            profile.uuid = item
+            profile.key = item
             settingsProfileList.append(profile)
         profile.settingsProfiles = settingsProfileList
 
@@ -94,7 +94,7 @@ class ProfileManagementService(PMSI):
         self.c.execute(''' DELETE FROM SettingsProfiles WHERE Key=?''', keyTup)
 
     def update_settings_profile(self, updatedProfile: SettingsProfile) -> bool:
-        self.c.execute('''UPDATE SettingsProfiles SET CharPerPixel = ?, PixelSpacing = ?, ColorSettings = ?, EncryptionKey = ? WHERE Key = ?''', (updatedProfile.charPerPixel, updatedProfile.pixelSpacing, updatedProfile.colorSettings, updatedProfile.encryptKey, updatedProfile.uuid))
+        self.c.execute('''UPDATE SettingsProfiles SET CharPerPixel = ?, PixelSpacing = ?, ColorSettings = ?, EncryptionKey = ? WHERE Key = ?''', (updatedProfile.charPerPixel, updatedProfile.pixelSpacing, updatedProfile.colorSettings, updatedProfile.encryptKey, updatedProfile.key))
         self.conn.commit()
 
     def get_all_settings_profiles(self) -> List[SettingsProfile]:
@@ -117,7 +117,7 @@ class ProfileManagementService(PMSI):
             self.c.execute("""SELECT EncryptionKey FROM SettingsProfiles WHERE Key=?""", (item[0],))
             encryptKey = self.c.fetchall()
             profile = SettingsProfile(name, charPerPixel, pixelSpacing, colorSettings, encryptKey)
-            profile.uuid = item
+            profile.key = item
             settingsProfileList.append(profile)
         return settingsProfileList
 
