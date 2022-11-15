@@ -356,7 +356,9 @@ class UserSettingsFrame(AppFrameInterface):
             The settings profile object is returned.
         """
         self._error_if_not_initialized()
-        return self.__selectedSettingsProfile
+        return self.__selectedSettingsProfile \
+            if self.__selectedSettingsProfile \
+            else self.__defaultSettingsProfile
     def get_temp_profile(self, tempProfile: SettingsProfile) -> None:
         """Fetches a temporary profile that will be pulled from an image header
 

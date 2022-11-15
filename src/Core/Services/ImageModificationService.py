@@ -2,7 +2,7 @@
 # Author(s): Bounds
 
 from PIL import Image
-import numpy
+from cryptography.fernet import Fernet
 
 from typing import List, Tuple
 from .ImageModificationServiceInterface import ImageModificationServiceInterface as IMSI
@@ -13,8 +13,8 @@ class ImageModificationService(IMSI):
     def __init__(self):
         pass
 
-    # use source.putdata() to put the data back in the image.
-    def hide_text_in_image(self, profile: SettingsProfile, text: str, inputPath: str, outputPath: str) -> None:
+    # TODO Gif support via pillow
+    def hide_text_in_image(self, profile: SettingsProfile, text: str, inputPath: str, outputPath: str) -> bool:
         # lets do some input validation
         if not profile:
             raise ValueError(profile)
@@ -29,15 +29,42 @@ class ImageModificationService(IMSI):
         # ... start by loading the image into
         # memory in a way we can get the pixels ...
         with Image.open(inputPath) as source:
+            unique_colors = profile.colorSettings == SettingsProfile.COLOR_UNIQUE
+
             # ... get the size of the image ...
             w, h = source.size
+            # ... and if it is animated ...
+            if source.is_animated:
+                # ... get the frame count ...
+                frames = source.n_frames
+            else:
+                frames = 1
 
             # ... then the header values for the image ...
             header = profile.get_header()
 
             # ... then find the max pixels we are allowed to use for
             # hiding text ...
-            max_pixels = (w * h) - len(header)
+            max_pixels = (w * h * frames) - len(header)
+
+            # ... if we are using unique colors ...
+            if unique_colors:
+                old_max = max_pixels
+                max_pixels = 0
+
+                try:
+                    for fi in range(frames):
+                        source.seek(fi)
+
+                        # ... then find the count of all colors in the image ...
+                        color_obj = source.getcolors(maxcolors=250000)
+                        
+                        colors = len(color_obj)
+                        # ... and set the max available pixels to the number of colors ...
+                        max_pixels += colors
+                except:
+                    max_pixels = old_max
+
             # ... then find out how many pixels we need, by taking the size of the
             # input text, dividing it by the pixels used for each character,
             # then multiplying it by how many unmodified pixels are between each data pixel ...
@@ -49,99 +76,142 @@ class ImageModificationService(IMSI):
                 raise ImageProcessingError("The pixels needed for this modification is more than the max available pixels.\n\
                     Make Characters Per Pixel larger, Pixel Spacing smaller, and/or input less text.")
 
-            # ... otherwise, get the images pixels ...
-            pixels = source.getdata()
-            
-            # ... then get a numpy array of the pixel values ...
-            # pixel_values = numpy.array(pixels).reshape((h, w, channels))
+            # ... if there is some encryption we want to do ....
+            if profile.is_encrypted():
+                # ... then create the encrypter ...
+                fernet = Fernet(profile.encryptKey)
+                # ... and encrypt the text ...
+                text_actual = fernet.encrypt(text)
+            else:
+                # ... otherwise do nothing ...
+                text_actual = text
 
-            # ... and an array of the text values ...
-            text_values = [ord(x) for x in text]
-
-            # ... before we go through the pixels,
-            # lets initialize the color dict if needed ...
-            if profile.colorSettings == SettingsProfile.COLOR_UNIQUE:
-                color_dict = {}
+            # ... and then build an array of the text values ...
+            text_values = [ord(x) for x in text_actual]
 
             # ... then define the pixel counter used to differentiate
             # between header and actual pixel values ...
             pixel_count = 0
+            # ... the skip counter for skipping pixels ...
             skip_counter = profile.pixelSpacing
+            # ... the text iterator ...
             text_iter = iter(text_values)
+            # ... and our breakout boolean ...
             out_of_text = False
-            for pindex in range(len(pixels)):
-            # ... if we are out of text, break out of the loop ...
+
+            # ... for each frame of the image ...
+            for findex in range(frames):
+                # ... if we are out of text, break out of the loop ...
                 if out_of_text:
                     break
+                
+                # ... move the file to the proper frame ...
+                source.seek(findex)
 
-                # ... first, get the pixel ...
-                pixel = pixels[pindex]
-                def update_pixel(pixel: Tuple, placeDict) -> Tuple:
-                    update = []
-                    for i in range(len(pixel)):
-                        if i in placeDict:
-                            update.append(placeDict[i])
-                        else:
-                            update.append(pixel[i])
+                # ... before we go through the pixels,
+                # lets initialize the color dict for if its needed ...
+                color_dict = {}
 
-                    return tuple(update)
+                # ... then, get the images pixels ...
+                pixels = source.getdata()
+                modded_pixels = []
+                for p in pixels:
+                # ... if we are out of text, and not using unique colors
+                # break out of the loop ...
+                    if out_of_text and not unique_colors:
+                        break
 
-                # ... determine if this is a header value or not ...
-                if pixel_count < len(header):
-                    # ... if it is the header, generate the 
-                    # new value ...
-                    val = self.__modify_int(pixel[2], 0, header[pixel_count])
-                    # ... then assign it to the pixel ...
-                    pixel = update_pixel(pixel, {2: val})
-                    # ... then up the pixel counter ...
-                    pixel_count += 1
-                else:
-                    # ... otherwise, compute the pixel data ...
-                    # ... if we have a skip, then skip this pixel.
-                    # In that regard, we always start with the skip ...
-                    if skip_counter > 1:
-                        # ... drop the counter by 1 ...
-                        skip_counter -= 1
-                        # ... and go to the next iteration ...
-                        continue
+                    # ... first, get the pixel ...
+                    pixel = p
+                    def update_pixel(pixel: Tuple, placeDict) -> Tuple:
+                        update = []
+                        for i in range(len(pixel)):
+                            if i in placeDict:
+                                update.append(placeDict[i])
+                            else:
+                                update.append(pixel[i])
 
-                    # ... otherwise, lets compute some pixel data ...
+                        return tuple(update)
 
-                    # ... for each char in the pixel ...
-                    for charNum in range(profile.charPerPixel):
-                        # ... get the raw char value ...
-                        charRaw: int = next(text_iter, -1)
-                        # ... and if its less than 0 (fail code) ...
-                        if charRaw < 0:
-                            # ... then tell the pixel loop to quit ...
-                            out_of_text = True
-                            break
+                    # ... determine if this is a header value or not ...
+                    if pixel_count < len(header):
+                        # ... if it is the header, generate the 
+                        # new value ...
+                        val = self.__modify_int(pixel[2], 0, header[pixel_count])
+                        # ... then assign it to the pixel ...
+                        pixel = update_pixel(pixel, {2: val})
+                        # ... then up the pixel counter ...
+                        pixel_count += 1
+                    else:
+                        saveNew = True
+                        # ... and if we are color matching ...
+                        if unique_colors:
+                            # ... then check the color dict for the current pixel ...
+                            if pixel in color_dict:
+                                # ... if it is there, the apply the saved color ...
+                                pixelKey = pixel
+                                pixel = color_dict[pixel]
+                                # ... and don't save a new color ...
+                                saveNew = False
 
-                        # ... otherwise, get the three digit int
-                        # string ...
-                        charString = '{0:0=3d}'.format(charRaw)
-                        # ... and break that into three separate chars ...
-                        chars = [int(x) for x in charString]
-                        # ... then get modified r,g,b values for the pixel ...
-                        r = self.__modify_int(pixel[0], charNum, chars[0])
-                        g = self.__modify_int(pixel[1], charNum, chars[1])
-                        b = self.__modify_int(pixel[2], charNum, chars[2])
+                        # ... if we have a skip, then skip this pixel.
+                        # In that regard, we always start with the skip ...
+                        if skip_counter > 1:
+                            # ... drop the counter by 1 ...
+                            skip_counter -= 1
+                            # ... and go to the next iteration ...
+                            continue
 
-                        # ... then update the pixel with new r,g,b values ...
-                        pixel = update_pixel(pixel, {
-                            0: r,
-                            1: g,
-                            2: b
-                        })
+                        # ... if we are supposed to save, then ...
+                        if saveNew and not out_of_text:
+                            # ... for each char in the pixel ...
+                            for charNum in range(profile.charPerPixel):
+                                # ... get the raw char value ...
+                                charRaw: int = next(text_iter, -1)
+                                # ... and if its less than 0 (fail code) ...
+                                if charRaw < 0:
+                                    # ... then tell the pixel loop to quit ...
+                                    out_of_text = True
+                                    # ... if we aren't running unique colors,
+                                    # then break out of the loop ...
+                                    if not unique_colors:
+                                        break
+                                else:
+                                    # ... otherwise, get the three digit int
+                                    # string ...
+                                    charString = '{0:0=3d}'.format(charRaw)
+                                    # ... and break that into three separate chars ...
+                                    chars = [int(x) for x in charString]
+                                    # ... then get modified r,g,b values for the pixel ...
+                                    r = self.__modify_int(pixel[0], charNum, chars[0])
+                                    g = self.__modify_int(pixel[1], charNum, chars[1])
+                                    b = self.__modify_int(pixel[2], charNum, chars[2])
 
-                # ... finally, save the pixel ...
-                pixels[pindex] = pixel
-            
-            # ... once we have modified all our pixels,
-            # lets update our image ...
-            source.putdata(pixels)
+                                    # ... then update the pixel with new r,g,b values ...
+                                    pixel = update_pixel(pixel, {
+                                        0: r,
+                                        1: g,
+                                        2: b
+                                    })
+
+                                    # ... then, if there is a new color saved ...
+                                    if unique_colors:
+                                        # ... save it to the dict ...
+                                        color_dict[pixelKey] = pixel
+
+                    # ... finally, save the pixel ...
+                    modded_pixels.append(pixel)
+
+                # ... once we have modified all our pixels,
+                # lets update our image ...
+                source.putdata(modded_pixels)
+
             # ... then save the image ...
             source.save(outputPath)
+
+            # ... and finally, if there is leftover text,
+            # return false.
+            return next(text_iter, None) == None
         
     def reveal_text_in_image(self, inputPath: str, encryptKey: str = "", imageSettings: SettingsProfile = None) -> Tuple[SettingsProfile, str]:
         return super().reveal_text_in_image(inputPath, encryptKey, imageSettings)

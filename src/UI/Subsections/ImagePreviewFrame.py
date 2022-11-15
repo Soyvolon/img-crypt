@@ -103,7 +103,11 @@ class ImagePreviewFrame(AppFrameInterface):
         self._error_if_not_initialized()
         try:
             # ask to open a file with the windows file picker
-            with fd.askopenfile(mode='r', filetypes=[('Single Image', '.png'), ('Batch Images', '.gif')]) as ogImage:
+            with fd.askopenfile(mode='r', filetypes=[
+                    ('Single Image', '.png')
+                #, ('Batch Images', '.gif')
+                # removed .gif support due to pallet issues.
+                ]) as ogImage:
                 if ogImage:
                     # the image is loaded, so we are going to continue
                     # by getting the file path object
@@ -141,7 +145,7 @@ class ImagePreviewFrame(AppFrameInterface):
         
     def __load_image_for_hiding(self, pathObj: pathlib.Path):
         # if the pathObj has a proper suffix
-        if pathObj.suffix == '.png' or pathObj.suffix == '.gif':
+        if pathObj.suffix == '.png': # or pathObj.suffix == '.gif':
             # we can load it.
             # save the path object into the raw image variable
             self.__rawImage = pathObj
@@ -161,7 +165,7 @@ class ImagePreviewFrame(AppFrameInterface):
             self.clear_image()
             # then show an error to the user.
             mb.showerror(title="Image Load Error", 
-                message="A file of type .gif or .png was unable to be loaded.")
+                message="A file of type .png was unable to be loaded.")
 
     def __load_image_for_revealing(self, pathObj: pathlib.Path, profile: SettingsProfile):
         pass
@@ -200,7 +204,7 @@ class ImagePreviewFrame(AppFrameInterface):
                 if (not suppressErrors):
                     mb.showerror("Image Processing Error", ipe.message)
                 return
-            except:
+            except Exception as ex:
                 mb.showerror("Image Processing Error", f'Failed to hide text in image. An unknown error occurred.')
                 self.clear_image()
                 return

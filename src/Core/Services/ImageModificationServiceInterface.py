@@ -8,7 +8,7 @@ from ..Data import SettingsProfile
 class ImageModificationServiceInterface(ABC):
     @abstractmethod
     def hide_text_in_image(self, profile: SettingsProfile, text: str, 
-        inputPath: str, outputPath: str) -> None:
+        inputPath: str, outputPath: str) -> bool:
         """
         Hides text within given image with using settings corresponding to the settings profile
         
@@ -20,7 +20,7 @@ class ImageModificationServiceInterface(ABC):
             outputPath
         
         Output:
-            None
+            (bool): True if all text has been hidden into the image.
         
         Postcondition:
             Image with hidden text is saved to the location matching inputPath
