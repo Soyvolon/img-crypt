@@ -179,6 +179,8 @@ class ImagePreviewFrame(AppFrameInterface):
             self.__inputFrame.set_current_text(res[1])
             # TODO
             # self.__settingFrame.set_temp_profile(res[0])
+
+            mb.showinfo('Image Decrypting', "Image Text Successfully Read.")
         except ImageProcessingError as ipe:
             mb.showerror("Image Processing Error", ipe.message)
             return
