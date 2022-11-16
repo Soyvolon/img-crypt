@@ -14,10 +14,10 @@ class ImageModificationService(IMSI):
         pass
 
     # TODO Gif support via pillow
-    def hide_text_in_image(self, profile: SettingsProfile, text: str, inputPath: str, outputPath: str) -> bool:
+    def hide_text_in_image(self, settings: SettingsProfile, text: str, inputPath: str, outputPath: str) -> bool:
         # lets do some input validation
-        if not profile:
-            raise ValueError(profile)
+        if not settings:
+            raise ValueError(settings)
         if not text:
             text = ''
         if not inputPath:
@@ -29,7 +29,7 @@ class ImageModificationService(IMSI):
         # ... start by loading the image into
         # memory in a way we can get the pixels ...
         with Image.open(inputPath) as source:
-            unique_colors = profile.colorSettings == SettingsProfile.COLOR_UNIQUE
+            unique_colors = settings.colorSettings == SettingsProfile.COLOR_UNIQUE
 
             # ... get the size of the image ...
             w, h = source.size
@@ -41,7 +41,7 @@ class ImageModificationService(IMSI):
                 frames = 1
 
             # ... then the header values for the image ...
-            header = profile.get_header()
+            header = settings.get_header()
 
             # ... then find the max pixels we are allowed to use for
             # hiding text ...
@@ -65,26 +65,28 @@ class ImageModificationService(IMSI):
                 except:
                     max_pixels = old_max
 
+            # ... if there is some encryption we want to do ....
+            if settings.is_encrypted():
+                # ... then create the encrypter ...
+                fernet = Fernet(settings.encryptKey)
+                # ... and encrypt the text ...
+                text_actual = fernet.encrypt(text)
+            else:
+                # ... otherwise do nothing ...
+                text_actual = text
+
+            text_actual += 'eof'
+
             # ... then find out how many pixels we need, by taking the size of the
             # input text, dividing it by the pixels used for each character,
             # then multiplying it by how many unmodified pixels are between each data pixel ...
-            pixels_needed = len(text) / profile.charPerPixel * profile.pixelSpacing
+            pixels_needed = len(text_actual) / settings.charPerPixel * settings.pixelSpacing
 
             # ... and if the pixels needed is more than the max pixels ...
             if (pixels_needed > max_pixels):
                 # ... raise an error with a human readable message ...
                 raise ImageProcessingError("The pixels needed for this modification is more than the max available pixels.\n\
                     Make Characters Per Pixel larger, Pixel Spacing smaller, and/or input less text.")
-
-            # ... if there is some encryption we want to do ....
-            if profile.is_encrypted():
-                # ... then create the encrypter ...
-                fernet = Fernet(profile.encryptKey)
-                # ... and encrypt the text ...
-                text_actual = fernet.encrypt(text)
-            else:
-                # ... otherwise do nothing ...
-                text_actual = text
 
             # ... and then build an array of the text values ...
             text_values = [ord(x) for x in text_actual]
@@ -93,7 +95,7 @@ class ImageModificationService(IMSI):
             # between header and actual pixel values ...
             pixel_count = 0
             # ... the skip counter for skipping pixels ...
-            skip_counter = profile.pixelSpacing
+            skip_counter = settings.pixelSpacing
             # ... the text iterator ...
             text_iter = iter(text_values)
             # ... and our breakout boolean ...
@@ -165,7 +167,7 @@ class ImageModificationService(IMSI):
                         # ... if we are supposed to save, then ...
                         if saveNew and not out_of_text:
                             # ... for each char in the pixel ...
-                            for charNum in range(profile.charPerPixel):
+                            for charNum in range(settings.charPerPixel):
                                 # ... get the raw char value ...
                                 charRaw: int = next(text_iter, -1)
                                 # ... and if its less than 0 (fail code) ...
@@ -199,6 +201,8 @@ class ImageModificationService(IMSI):
                                         # ... save it to the dict ...
                                         color_dict[pixelKey] = pixel
 
+                                    skip_counter = settings.pixelSpacing
+
                     # ... finally, save the pixel ...
                     modded_pixels.append(pixel)
 
@@ -214,7 +218,131 @@ class ImageModificationService(IMSI):
             return next(text_iter, None) == None
         
     def reveal_text_in_image(self, inputPath: str, encryptKey: str = "", imageSettings: SettingsProfile = None) -> Tuple[SettingsProfile, str]:
-        return super().reveal_text_in_image(inputPath, encryptKey, imageSettings)
+        # Reveal Process:
+        #   get header (imageSettings) if it is None
+        #   read all pixel data as per the imageSettings
+        #   find last sequence of [ord(x) for x in 'eof'] and remove everything after it
+        #   convert data to chars
+        #   decrypt if needed
+        #   return text and settings profile
+
+        # To start, save the settings profile ...
+        settings = imageSettings
+        if not settings:
+            # ... or get one if the profile is not provided ...
+            settings = self.get_header(inputPath)
+
+        # ... and if the profile is still None ...
+        if not settings:
+            # ... then raise an error ...
+            raise ImageProcessingError("The provided inputPath does not contain a valid Image Crypt header.")
+
+        # ... next, create the ord list ...
+        text_ords = []
+        # ... and open the image ...
+        with Image.open(inputPath) as source:
+            # ... then define a method to pull the place value of a number ...
+            def pull_digit(num: int, place: int):
+                parts = [x for x in reversed(str(num))]
+                return int(parts[place])
+
+            # ... state if we are using unique colors or not ...
+            unique_colors = settings.colorSettings == SettingsProfile.COLOR_UNIQUE
+
+            # ... get all the pixels ...
+            pixels = source.getdata()
+            # ... get the header ...
+            header = settings.get_header()
+            # ... set our starting pixel count ...
+            pixel_count = 0
+            # ... the color dict ...
+            colors = {}
+            # ... and the skip counter ...
+            skip_counter = settings.pixelSpacing
+            # ... then for each pixel ...
+            for pixel in pixels:
+                # ... if its in the header, skip it ...
+                if pixel_count < len(header):
+                    pixel_count += 1
+                    continue
+
+                # ... otherwise if we have a skip, then skip this pixel.
+                # In that regard, we always start with the skip ...
+                if skip_counter > 1:
+                    # ... drop the counter by 1 ...
+                    skip_counter -= 1
+                    # ... and go to the next iteration ...
+                    continue
+
+                # ... if no skips, start crunching the numbers ...
+                for charNum in range(settings.charPerPixel):
+                    # ... if its an already used unique color ...
+                    if unique_colors:
+                        # ... then just skip this pixel ...
+                        if pixel in colors:
+                           continue 
+
+                    # ... otherwise pull the r, g, b parts of our ord value
+                    r = pull_digit(pixel[0], charNum)
+                    g = pull_digit(pixel[1], charNum)
+                    b = pull_digit(pixel[2], charNum)
+
+                    # ... combine the three into an actual number ...
+                    num = self.__build_int_from_list([r, g, b])
+
+                    # ... then append that number to the ord list ...
+                    text_ords.append(num)
+
+                    # ... and if its a unique color, save the pixel ...
+                    if unique_colors:
+                        colors[pixel] = num
+
+                    # ... and reset the skip if needed ...
+                    skip_counter = settings.pixelSpacing
+        
+        # ... now lets find the eof marker ...
+        eof = [ord(x) for x in 'eof']
+        # ... and set the needed hit count ...
+        needed_hits = len(eof) - 1
+        # ... and the starting hit count ...
+        start_hits = len(eof)
+        # ... the note the last index ...
+        last_index = len(text_ords)
+        # ... from the last value to the first ...
+        for i in range(len(text_ords) - 1, -1, -1):
+            # ... if the ord value matches the eof sequence ...
+            if text_ords[i] == eof[needed_hits]:
+                # ... drop the sequence number ...
+                needed_hits -= 1
+                # ... and if our sequence is lower than 0 - i.e. complete ...
+                if needed_hits < 0:
+                    # ... save our new last index ...
+                    last_index = i
+                    # ... then break out of the loop ...
+                    break
+            else:
+                # ... otherwise, set the needed hits to the eof length ...
+                needed_hits = start_hits
+        
+        # ... once we have our index, get all the text up to that point ...
+        valid_text = text_ords[:last_index]
+        # ... then turn it into a string ...
+        text_string = str(chr(x) for x in valid_text)
+
+        # ... then define our final string ...
+        final_text = text_string
+        # ... and if it is encrypted ...
+        if settings.is_encrypted():
+            # ... save the encrypt key to the settings profile ...
+            settings.encryptKey = encryptKey
+            # ... then create the encrypter ...
+            fernet = Fernet(settings.encryptKey)
+            # ... and encrypt the text ...
+            final_text = fernet.encrypt(text_string)
+
+        # ... finally, return the settings and final text.
+        return (settings, final_text)
+
 
     def get_header(self, inputPath: str) -> SettingsProfile:
         # Create the pixel list ...
@@ -257,9 +385,12 @@ class ImageModificationService(IMSI):
         if len(value) <= 0:
             return 0
 
-        new_value = value[0]
-        for i in range(1, len(value)):
-            new_value += value[i] * (10 ** i)
+        return self.__build_int_from_list(value)
+
+    def __build_int_from_list(self, values):
+        new_value = values[0]
+        for i in range(1, len(values)):
+            new_value += values[i] * (10 ** i)
 
         return new_value
         
