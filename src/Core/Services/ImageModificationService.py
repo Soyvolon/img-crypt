@@ -184,25 +184,62 @@ class ImageModificationService(IMSI):
                                     charString = '{0:0=3d}'.format(charRaw)
                                     # ... and break that into three separate chars ...
                                     chars = [int(x) for x in charString]
-                                    # ... then get modified r,g,b values for the pixel ...
-                                    r = self.__modify_int(pixel[0], charNum, chars[0])
-                                    g = self.__modify_int(pixel[1], charNum, chars[1])
-                                    b = self.__modify_int(pixel[2], charNum, chars[2])
 
-                                    # TODO fix this wonky logic and how the pixels are computed.
-                                    if r > 255:
-                                        r -= 10
-                                    if g > 255:
-                                        g -= 10
-                                    if b > 255:
-                                        b -= 10
+                                    if settings.charPerPixel == 1:
+                                        # ... then get modified r,g,b values for the pixel ...
+                                        r = self.__modify_int(pixel[0], 0, chars[0])
+                                        g = self.__modify_int(pixel[1], 0, chars[1])
+                                        b = self.__modify_int(pixel[2], 0, chars[2])
 
-                                    # ... then update the pixel with new r,g,b values ...
-                                    pixel = update_pixel(pixel, {
-                                        0: r,
-                                        1: g,
-                                        2: b
-                                    })
+                                        # TODO fix this wonky logic and how the pixels are computed.
+                                        if r > 255:
+                                            r -= 10
+                                        if g > 255:
+                                            g -= 10
+                                        if b > 255:
+                                            b -= 10
+
+                                        # ... then update the pixel with new r,g,b values ...
+                                        pixel = update_pixel(pixel, {
+                                            0: r,
+                                            1: g,
+                                            2: b
+                                        })
+
+                                    elif settings.charPerPixel == 2:
+                                        if charNum == 0:
+                                            r = self.__modify_int(pixel[0], 1, chars[0])
+                                            r = self.__modify_int(r, 0, chars[1])
+                                            g = self.__modify_int(pixel[1], 1, chars[2])
+
+                                            if r > 255:
+                                                r -= 100
+                                            if g > 255:
+                                                g -= 100
+
+                                            pixel = update_pixel(pixel, {
+                                                0: r,
+                                                1: g
+                                            })
+                                        else:
+                                            g = self.__modify_int(pixel[1], 0, chars[0])
+                                            b = self.__modify_int(pixel[2], 1, chars[1])
+                                            b = self.__modify_int(b, 0, chars[2])
+
+                                            if g > 255:
+                                                g -= 100
+                                            if b > 255:
+                                                b -= 100
+
+                                            pixel = update_pixel(pixel, {
+                                                1: g,
+                                                2: b
+                                            })
+
+                                    elif settings.charPerPixel == 3:
+                                        pixel = update_pixel(pixel, {
+                                            charNum: charRaw
+                                        })
 
                                     # ... then, if there is a new color saved ...
                                     if unique_colors:
@@ -290,13 +327,31 @@ class ImageModificationService(IMSI):
                         if pixel in colors:
                            continue 
 
-                    # ... otherwise pull the r, g, b parts of our ord value
-                    hundreds = pull_digit(pixel[0], charNum)
-                    tens = pull_digit(pixel[1], charNum)
-                    ones = pull_digit(pixel[2], charNum)
+                    num = 0
+                    if settings.charPerPixel == 1:
+                        # ... otherwise pull the r, g, b parts of our ord value
+                        hundreds = pull_digit(pixel[0], charNum)
+                        tens = pull_digit(pixel[1], charNum)
+                        ones = pull_digit(pixel[2], charNum)
 
-                    # ... combine the three into an actual number ...
-                    num = self.__build_int_from_list([ones, tens, hundreds])
+                        # ... combine the three into an actual number ...
+                        num = self.__build_int_from_list([ones, tens, hundreds])
+                    
+                    elif settings.charPerPixel == 2:
+                        if charNum == 0:
+                            hundreds = pull_digit(pixel[0], 1)
+                            tens = pull_digit(pixel[0], 0)
+                            ones = pull_digit(pixel[1], 1)
+                        else:
+                            hundreds = pull_digit(pixel[1], 0)
+                            tens = pull_digit(pixel[2], 1)
+                            ones = pull_digit(pixel[2], 0)
+
+                        # ... combine the three into an actual number ...
+                        num = self.__build_int_from_list([ones, tens, hundreds])
+
+                    elif settings.charPerPixel == 3:
+                        num = pixel[charNum]
 
                     # ... then append that number to the ord list ...
                     text_ords.append(num)
