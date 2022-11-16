@@ -128,6 +128,22 @@ class UserInputFrame(AppFrameInterface):
         self._error_if_not_initialized()
         return self.__textInput.get('1.0', 'end')[:-1]
 
+    def set_current_text(self, text: str):
+        """Replaces the currently displayed text with a new set of text.
+
+        Preconditions:
+            This frame is initialized.
+
+        Args:
+            text (str): The new set of text.
+
+        Postcondition:
+            The displayed text matches the text passed to this method.
+        """
+        self._error_if_not_initialized()
+        self.__textInput.delete('1.0', 'end')
+        self.__textInput.insert('1.0', text)
+
     def __validate_text_input(self, event) -> None:
         """
         Validate new text input into the user input text box

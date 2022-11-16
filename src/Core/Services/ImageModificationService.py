@@ -189,6 +189,14 @@ class ImageModificationService(IMSI):
                                     g = self.__modify_int(pixel[1], charNum, chars[1])
                                     b = self.__modify_int(pixel[2], charNum, chars[2])
 
+                                    # TODO fix this wonky logic and how the pixels are computed.
+                                    if r > 255:
+                                        r -= 10
+                                    if g > 255:
+                                        g -= 10
+                                    if b > 255:
+                                        b -= 10
+
                                     # ... then update the pixel with new r,g,b values ...
                                     pixel = update_pixel(pixel, {
                                         0: r,
@@ -283,12 +291,12 @@ class ImageModificationService(IMSI):
                            continue 
 
                     # ... otherwise pull the r, g, b parts of our ord value
-                    r = pull_digit(pixel[0], charNum)
-                    g = pull_digit(pixel[1], charNum)
-                    b = pull_digit(pixel[2], charNum)
+                    hundreds = pull_digit(pixel[0], charNum)
+                    tens = pull_digit(pixel[1], charNum)
+                    ones = pull_digit(pixel[2], charNum)
 
                     # ... combine the three into an actual number ...
-                    num = self.__build_int_from_list([r, g, b])
+                    num = self.__build_int_from_list([ones, tens, hundreds])
 
                     # ... then append that number to the ord list ...
                     text_ords.append(num)
@@ -305,9 +313,9 @@ class ImageModificationService(IMSI):
         # ... and set the needed hit count ...
         needed_hits = len(eof) - 1
         # ... and the starting hit count ...
-        start_hits = len(eof)
+        start_hits = needed_hits
         # ... the note the last index ...
-        last_index = len(text_ords)
+        last_index = len(text_ords) - 1
         # ... from the last value to the first ...
         for i in range(len(text_ords) - 1, -1, -1):
             # ... if the ord value matches the eof sequence ...
@@ -327,7 +335,9 @@ class ImageModificationService(IMSI):
         # ... once we have our index, get all the text up to that point ...
         valid_text = text_ords[:last_index]
         # ... then turn it into a string ...
-        text_string = str(chr(x) for x in valid_text)
+        text_string = ""
+        for c in [chr(x) for x in valid_text]:
+            text_string += c
 
         # ... then define our final string ...
         final_text = text_string

@@ -6,6 +6,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import filedialog as fd
 from tkinter import messagebox as mb
+from tkinter import simpledialog as sd
 from PIL import Image, ImageTk
 
 import pathlib
@@ -168,7 +169,23 @@ class ImagePreviewFrame(AppFrameInterface):
                 message="A file of type .png was unable to be loaded.")
 
     def __load_image_for_revealing(self, pathObj: pathlib.Path, profile: SettingsProfile):
-        pass
+        encrypt_key = ''
+        if profile.is_encrypted():
+            encrypt_key = sd.askstring('Encryption Key', "Please enter the encryption key used \
+                for this image.")
+        
+        try:
+            res = self.__imageService.reveal_text_in_image(str(pathObj), encrypt_key, profile)
+            self.__inputFrame.set_current_text(res[1])
+            # TODO
+            # self.__settingFrame.set_temp_profile(res[0])
+        except ImageProcessingError as ipe:
+            mb.showerror("Image Processing Error", ipe.message)
+            return
+        except Exception as ex:
+            mb.showerror("Image Processing Error", f'Failed to reveal text in image. An unknown error occurred.')
+            self.clear_image()
+            return
 
     def update_image(self, suppressErrors: bool = True) -> None:
         """Update the currently loaded image with the
