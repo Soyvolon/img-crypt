@@ -353,7 +353,6 @@ class ImageModificationService(IMSI):
         # ... finally, return the settings and final text.
         return (settings, final_text)
 
-
     def get_header(self, inputPath: str) -> SettingsProfile:
         # Create the pixel list ...
         pixels = []
