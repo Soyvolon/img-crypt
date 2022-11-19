@@ -2,7 +2,12 @@
 # Author(s): Bounds
 
 from PIL import Image
+import base64
 from cryptography.fernet import Fernet
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from hashlib import sha512
 
 from typing import List, Tuple
 from .ImageModificationServiceInterface import ImageModificationServiceInterface as IMSI
@@ -11,9 +16,8 @@ from ..Error import ImageProcessingError
 
 class ImageModificationService(IMSI):
     def __init__(self):
-        pass
+        self.__salt = b'salt_'
 
-    # TODO Gif support via pillow
     def hide_text_in_image(self, settings: SettingsProfile, text: str, inputPath: str, outputPath: str) -> bool:
         # lets do some input validation
         if not settings:
@@ -67,10 +71,13 @@ class ImageModificationService(IMSI):
 
             # ... if there is some encryption we want to do ....
             if settings.is_encrypted():
+                key = self.__get_fernet_key(settings.encryptKey)
                 # ... then create the encrypter ...
-                fernet = Fernet(settings.encryptKey)
+                fernet = Fernet(key)
                 # ... and encrypt the text ...
-                text_actual = fernet.encrypt(text)
+                text_actual = fernet.encrypt(text.encode())
+                # ... then decode it for use ...
+                text_actual = text_actual.decode('ASCII')
             else:
                 # ... otherwise do nothing ...
                 text_actual = text
@@ -140,6 +147,12 @@ class ImageModificationService(IMSI):
                         # ... if it is the header, generate the 
                         # new value ...
                         val = self.__modify_int(pixel[2], 0, header[pixel_count])
+
+                        # ... if the value is higher than the max color size ...
+                        if val > 255:
+                            # ... subtract 10 ...
+                            val -= 10
+
                         # ... then assign it to the pixel ...
                         pixel = update_pixel(pixel, {2: val})
                         # ... then up the pixel counter ...
@@ -161,6 +174,8 @@ class ImageModificationService(IMSI):
                         if skip_counter > 1:
                             # ... drop the counter by 1 ...
                             skip_counter -= 1
+                            # ... save the pixel for buffer space ...
+                            modded_pixels.append(pixel)
                             # ... and go to the next iteration ...
                             continue
 
@@ -398,12 +413,13 @@ class ImageModificationService(IMSI):
         final_text = text_string
         # ... and if it is encrypted ...
         if settings.is_encrypted():
-            # ... save the encrypt key to the settings profile ...
-            settings.encryptKey = encryptKey
+            key = self.__get_fernet_key(encryptKey)
             # ... then create the encrypter ...
-            fernet = Fernet(settings.encryptKey)
-            # ... and encrypt the text ...
-            final_text = fernet.encrypt(text_string)
+            fernet = Fernet(key)
+            # ... and decrypt the text ...
+            final_text = fernet.decrypt(final_text.encode())
+            # ... then decode it for use ...
+            final_text = final_text.decode('ASCII')
 
         # ... finally, return the settings and final text.
         return (settings, final_text)
@@ -457,4 +473,15 @@ class ImageModificationService(IMSI):
             new_value += values[i] * (10 ** i)
 
         return new_value
+    
+    def __get_fernet_key(self, key: str) -> str:
+        kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=self.__salt,
+            iterations=100000,
+            backend=default_backend()
+        )
+
+        return base64.urlsafe_b64encode(kdf.derive(key.encode()))
         
