@@ -9,12 +9,9 @@ iniconfig==1.1.1
 numpy==1.23.4
 packaging==21.3
 Pillow==9.3.0
-pip==22.2.2
 platformdirs==2.5.2
 pluggy==1.0.0
 pycparser==2.21
 pyparsing==3.0.9
 pytest==7.2.0
-setuptools==65.5.0
 tomli==2.0.1
-virtualenv==20.16.5
