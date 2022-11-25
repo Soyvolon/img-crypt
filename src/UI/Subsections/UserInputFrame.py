@@ -4,6 +4,9 @@
 from tkinter import Text
 import tkinter.ttk as ttk
 from tkinter import filedialog as fd
+from tkinter import messagebox as mb
+from tkinter import simpledialog as sd
+import io
 
 from .AppFrameInterface import AppFrameInterface
 
@@ -24,11 +27,9 @@ class UserInputFrame(AppFrameInterface):
         
     def initialize(self) -> None:
         # get the services we need.
-        from .UserSettingsFrame import UserSettingsFrame
         from .ImagePreviewFrame import ImagePreviewFrame
         
         self.__imagePreview: ImagePreviewFrame = self.__services[ImagePreviewFrame]
-        self.__userSettings: UserSettingsFrame = self.__services[UserSettingsFrame]
 
         # register UI events
         self.__textInput.bind('<KeyPress>', self.__validate_text_input)
@@ -175,10 +176,30 @@ class UserInputFrame(AppFrameInterface):
                     for y in range(0, len(curTextRows[x]))
                         # ... if the value is not ASCII, save it ...
                         if ord(curTextRows[x][y]) >= 128]
-            # ... then for each bad char...
-            for pair in badChars:
+
+            i = 0
+            # ... then, iterating through the bad chars ...
+            while i < len(badChars) - 1:
+                # ... if they are on the same row ...
+                if badChars[i][0] == badChars[i + 1][0]:
+                    # ... and are in a continuous string ...
+                    if abs(badChars[i][-1] - badChars[i + 1][1]) <= 1:
+                        # ... then merge entries together ...
+                        val = badChars.pop(i + 1)
+                        badChars[i] = (badChars[i][0], badChars[i][1], val[1])
+                        # ... and continue ...
+                        continue
+                # ... otherwise, increment i ...
+                i += 1
+
+            # ... then for each bad char string, in reverse
+            # to preserve char indexes ...
+            for pair in reversed(badChars):
                 # ... delete it from the text box.
-                self.__textInput.delete(f'{pair[0]}.{pair[1]}', f'{pair[0]}.{pair[1] + 1}')
+                if len(pair) == 2:
+                    self.__textInput.delete(f'{pair[0]}.{pair[1]}', f'{pair[0]}.{pair[1] + 1}')
+                else:
+                    self.__textInput.delete(f'{pair[0]}.{pair[1]}', f'{pair[0]}.{pair[2] + 1}')
 
     def __load_image_pressed(self):
         self._error_if_not_initialized()
@@ -192,8 +213,25 @@ class UserInputFrame(AppFrameInterface):
 
     def __load_text_pressed(self):
         self._error_if_not_initialized()
-        pass
+        try:
+            fileName = fd.askopenfilename(filetypes=[('Text Files', '.txt')])
+            if fileName:
+                with open(fileName, 'r', encoding='utf-8') as file:
+                    text = file.read()
+                    self.__textInput.delete('1.0', 'end')
+                    self.__textInput.insert('1.0', text)
+                    self.__textInput.after(100, self.__validate_text_input, None)
+        except Exception as ex:
+            mb.showerror("Error", "An unexpected error occurred.")
 
     def __save_text_pressed(self):
         self._error_if_not_initialized()
-        pass
+        try:
+            fileName: str = fd.asksaveasfilename(filetypes=[('Text files', '.txt')])
+            if not fileName.endswith('.txt'):
+                fileName += '.txt'
+            with open(fileName, 'w') as file:
+                text = self.get_current_text()
+                file.write(text)
+        except:
+            pass
