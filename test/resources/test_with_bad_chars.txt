@@ -1,0 +1,13 @@
+This is some testing text.
+
+It has bad characters: ֍֍֍
+
+We are going to load this into our app.
+
+    This is some other formatting for it.
+
+    And some more ץץץ and ௵
+
+Including spacing.
+And non-spacing.
+And shift-enters.
