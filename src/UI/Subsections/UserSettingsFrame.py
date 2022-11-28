@@ -84,6 +84,7 @@ class UserSettingsFrame(AppFrameInterface):
             master=self.__userProfileFrame,
             postcommand=self.__user_profile_changed
         )
+        #self.__userProfile.bind("<<ComboboxSelected>>", self.__user_profile_changed)
 
         # user profile add button
         self.__addUserProfile = ttk.Button(
@@ -110,6 +111,7 @@ class UserSettingsFrame(AppFrameInterface):
             master=self.__leftFrame,
             values=('Standard', 'Unique')
         )
+        #self.__colorSettings.bind("<<ComboboxSelected>>", self.__color_settings_changed)
         
         # characters per pixel label
         self.__charsPerPixelLabel = ttk.Label(
@@ -122,6 +124,7 @@ class UserSettingsFrame(AppFrameInterface):
             master=self.__leftFrame,
             values=('1', '2', '3')
         )
+        #self.__charsPerPixel.bind("<<ComboboxSelected>>", self.__chars_per_pixel_changed)
 
         # ---- end left frame code ----
 
@@ -148,6 +151,7 @@ class UserSettingsFrame(AppFrameInterface):
             master=self.__settingsProfileFrame,
             postcommand=self.__settings_profile_changed
         )
+        #self.__settingsProfile.bind("<<ComboboxSelected>>", self.__settings_profile_changed)
 
         # settings profile add button
         self.__addSettingsProfile = ttk.Button(
@@ -166,7 +170,8 @@ class UserSettingsFrame(AppFrameInterface):
         # settings profile save button
         self.__saveSettingsProfile = ttk.Button(
             master=self.__settingsProfileFrame,
-            image=self.__saveImage
+            image=self.__saveImage,
+            command=self.__save_settings_profile_pressed
         )
 
         # pixel spacing label
@@ -280,43 +285,53 @@ class UserSettingsFrame(AppFrameInterface):
 
     # REGION Profiles
     def __user_profile_changed(self):
+        self._error_if_not_initialized()
         selectedProfileName = self.__userProfile.get()
         for item in self.__userProfileList:
             if item.name[0][0] == selectedProfileName:
                 self.__selectedUserProfile = item
         self.__refresh_user_profiles()
-        self.__refresh_settings_profiles()
 
     def __new_user_profile_pressed(self):
+        self._error_if_not_initialized()
         name = tk.simpledialog.askstring("Name of User Profile", "Enter the name of the User Profile")
         if name != None:
             self.__selectedUserProfile = self.__profileService.create_user_profile(name)
 
     def __delete_user_profile_pressed(self):
+        self._error_if_not_initialized()
         self.__profileService.delete_user_profile(self.__selectedUserProfile.key)
         self.__refresh_user_profiles
 
     def __settings_profile_changed(self):
+        self._error_if_not_initialized()
         selectedProfileName = self.__settingsProfile.get()
         for item in self.__settingsProfileList:
             if item.name[0][0] == selectedProfileName:
-                print("success")
-                self.__selectedUserProfile = item
+                self.__selectedSettingsProfile = item
         self.__refresh_user_profiles()
 
     def __new_settings_profile_pressed(self):
+        self._error_if_not_initialized()
         self.__user_profile_changed()
         name = tk.simpledialog.askstring("Name of Settings Profile", "Enter the name of the Settings Profile")
         if name != None:
             self.__selectedSettingsProfile = self.__profileService.create_settings_profile(name, self.__selectedUserProfile.key)
 
     def __delete_settings_profile_pressed(self):
+        self._error_if_not_initialized()
         self.__profileService.delete_settings_profile(self.__selectedSettingsProfile.key)
         self.__refresh_settings_profiles
 
     def __save_settings_profile_pressed(self):
         self._error_if_not_initialized()
-        pass
+        self.__selectedSettingsProfile.charPerPixel = self.__charsPerPixel.get()
+        self.__selectedSettingsProfile.pixelSpacing = self.__pixelSpacing.get()
+        self.__selectedSettingsProfile.colorSettings = self.__colorSettings.current()
+        self.__selectedSettingsProfile.encryptKey = self.__hashKey.get()
+        if self.__hashKey.get() == "":
+            self.__selectedSettingsProfile.encryptKey = None
+        self.__profileService.update_settings_profile(self.__selectedSettingsProfile)
     
     # END REGION
 
@@ -410,9 +425,9 @@ class UserSettingsFrame(AppFrameInterface):
         # user profile
         # TODO add rest of profiles from db
         self.__settingsProfileList = [default]
-        #Below code should be used once error in ProfileManagementService is fixed, see line 59 in PMS for more
         if self.__selectedUserProfile != None:
-            self.__profileService.get_settings_profiles_for_user(self.__selectedUserProfile)
+            self.__selectedUserProfile = self.__profileService.get_settings_profiles_for_user(self.__selectedUserProfile)
+            self.__settingsProfileList = self.__selectedUserProfile.settingsProfiles
             self.__settingsProfileNames = []
             for item in self.__selectedUserProfile.settingsProfiles:
                 self.__settingsProfileNames.append(item.name[0][0])
@@ -421,6 +436,12 @@ class UserSettingsFrame(AppFrameInterface):
             self.__selectedSettingsProfile = self.__defaultSettingsProfile
             '''
             # TODO update input fields
+            print(self.__settingsProfileNames)
+        self.__selectedSettingsProfile = self.__get_default_settings_profile()
+        self.__charsPerPixel.current(self.__selectedSettingsProfile.charPerPixel - 1)
+        self.__pixelSpacing["text"] = self.__selectedSettingsProfile.pixelSpacing
+        self.__colorSettings.current(self.__selectedSettingsProfile.colorSettings)
+        self.__hashKey["text"] = self.__selectedSettingsProfile.encryptKey
         self.__settingsProfile['values'] = self.__settingsProfileNames
         # TODO reload dropdown data
 
