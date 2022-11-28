@@ -25,7 +25,7 @@ class ProfileManagementService(PMSI):
         PixelSpacing bigint,
         ColorSettings int,
         EncryptionKey varchar(256),
-        UserProfile int NOT NULL); """)
+        UserProfile INTEGER NOT NULL); """)
 
     # -- User Profiles --
     def create_user_profile(self, name: str) -> UserProfile:
@@ -34,7 +34,6 @@ class ProfileManagementService(PMSI):
         c.execute(''' INSERT INTO UserProfiles(Name) VALUES (?)''', (name,))
         self.conn.commit()
         newProfile.key = c.lastrowid
-        print(newProfile.key)
         #Unsure what to do with the UUID part of creation
         #When using this method, leave out the key part UUID should autogenerate
 
@@ -57,7 +56,6 @@ class ProfileManagementService(PMSI):
 
     def get_settings_profiles_for_user(self, profile: UserProfile) -> None:
         #Bug here, for some reason there's apparently a value error on the next line
-        print(type(profile.key[0]))
         self.c.execute('''SELECT key FROM SettingsProfiles WHERE UserProfile=?''', (profile.key))
         settingsProfileList = []
         name = ''
@@ -80,6 +78,7 @@ class ProfileManagementService(PMSI):
             profile.key = item
             settingsProfileList.append(profile)
         profile.settingsProfiles = settingsProfileList
+        return profile
 
     # -- -- --
     # -- Settings Profiles --
@@ -94,7 +93,7 @@ class ProfileManagementService(PMSI):
         self.c.execute(''' DELETE FROM SettingsProfiles WHERE Key=?''', keyTup)
 
     def update_settings_profile(self, updatedProfile: SettingsProfile) -> bool:
-        self.c.execute('''UPDATE SettingsProfiles SET CharPerPixel = ?, PixelSpacing = ?, ColorSettings = ?, EncryptionKey = ? WHERE Key = ?''', (updatedProfile.charPerPixel, updatedProfile.pixelSpacing, updatedProfile.colorSettings, updatedProfile.encryptKey, updatedProfile.key))
+        self.c.execute('''UPDATE SettingsProfiles SET CharPerPixel = ?, PixelSpacing = ?, ColorSettings = ?, EncryptionKey = ? WHERE Key = ?''', (updatedProfile.charPerPixel, updatedProfile.pixelSpacing, updatedProfile.colorSettings, updatedProfile.encryptKey, updatedProfile.key[0]))
         self.conn.commit()
 
     def get_all_settings_profiles(self) -> List[SettingsProfile]:
