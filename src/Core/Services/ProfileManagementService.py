@@ -40,6 +40,7 @@ class ProfileManagementService(PMSI):
     def delete_user_profile(self, key: int) -> bool:
         keyTup = (key[0],)
         self.c.execute(''' DELETE FROM UserProfiles WHERE Key=?''', keyTup)
+        self.conn.commit()
 
     def get_all_user_profiles(self) -> List[UserProfile]:
         self.c.execute('''SELECT key FROM UserProfiles''')
@@ -55,7 +56,6 @@ class ProfileManagementService(PMSI):
 
 
     def get_settings_profiles_for_user(self, profile: UserProfile) -> None:
-        #Bug here, for some reason there's apparently a value error on the next line
         self.c.execute('''SELECT key FROM SettingsProfiles WHERE UserProfile=?''', (profile.key))
         settingsProfileList = []
         name = ''
@@ -78,22 +78,24 @@ class ProfileManagementService(PMSI):
             profile.key = item
             settingsProfileList.append(profile)
         profile.settingsProfiles = settingsProfileList
-        return profile
 
     # -- -- --
     # -- Settings Profiles --
     def create_settings_profile(self, name: str, parentKey: int) -> SettingsProfile:
         newProfile = SettingsProfile(name, 0, 0, 0, "")
-        values = (name, '', '', '', None, int(parentKey[0]))
+        newProfile.key = parentKey
+        values = (name, 1, 1, 1, None, int(parentKey[0]))
         self.c.execute('''INSERT INTO SettingsProfiles(Name, CharPerPixel, PixelSpacing, ColorSettings, EncryptionKey, UserProfile) VALUES(?,?,?,?,?,?)''', values)
         self.conn.commit()
+        return newProfile
 
     def delete_settings_profile(self, key: int) -> bool:
         keyTup = (key[0],)
         self.c.execute(''' DELETE FROM SettingsProfiles WHERE Key=?''', keyTup)
+        self.conn.commit()
 
-    def update_settings_profile(self, updatedProfile: SettingsProfile) -> bool:
-        self.c.execute('''UPDATE SettingsProfiles SET CharPerPixel = ?, PixelSpacing = ?, ColorSettings = ?, EncryptionKey = ? WHERE Key = ?''', (updatedProfile.charPerPixel, updatedProfile.pixelSpacing, updatedProfile.colorSettings, updatedProfile.encryptKey, updatedProfile.key[0]))
+    def update_settings_profile(self, updatedProfile: SettingsProfile, userProfileKey: int) -> bool:
+        self.c.execute('''UPDATE SettingsProfiles SET CharPerPixel = ?, PixelSpacing = ?, ColorSettings = ?, EncryptionKey = ? WHERE Key = ?''', (updatedProfile.charPerPixel, updatedProfile.pixelSpacing, updatedProfile.colorSettings, updatedProfile.encryptKey, userProfileKey))
         self.conn.commit()
 
     def get_all_settings_profiles(self) -> List[SettingsProfile]:
