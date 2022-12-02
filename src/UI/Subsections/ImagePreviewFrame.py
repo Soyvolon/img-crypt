@@ -171,8 +171,7 @@ class ImagePreviewFrame(AppFrameInterface):
     def __load_image_for_revealing(self, pathObj: pathlib.Path, profile: SettingsProfile):
         encrypt_key = ''
         if profile.is_encrypted():
-            encrypt_key = sd.askstring('Encryption Key', "Please enter the encryption key used \
-                for this image.")
+            encrypt_key = sd.askstring('Encryption Key', "Please enter the encryption key used for this image.")
         
         try:
             res = self.__imageService.reveal_text_in_image(str(pathObj), encrypt_key, profile)
