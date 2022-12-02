@@ -78,6 +78,7 @@ class ProfileManagementService(PMSI):
             profile.key = item
             settingsProfileList.append(profile)
         profile.settingsProfiles = settingsProfileList
+        return profile
 
     # -- -- --
     # -- Settings Profiles --

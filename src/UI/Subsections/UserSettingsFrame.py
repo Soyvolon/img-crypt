@@ -322,6 +322,7 @@ class UserSettingsFrame(AppFrameInterface):
         name = tk.simpledialog.askstring("Name of Settings Profile", "Enter the name of the Settings Profile")
         if name != None:
             self.__selectedSettingsProfile = self.__profileService.create_settings_profile(name, self.__selectedUserProfile.key)
+        
 
     def __delete_settings_profile_pressed(self):
         self._error_if_not_initialized()
@@ -431,11 +432,12 @@ class UserSettingsFrame(AppFrameInterface):
         # TODO add rest of profiles from db
         self.__settingsProfileList = [default]
         if self.__selectedUserProfile != None:
-            self.__profileService.get_settings_profiles_for_user(self.__selectedUserProfile)
+            self.__selectedUserProfile = self.__profileService.get_settings_profiles_for_user(self.__selectedUserProfile)
+            print(self.__selectedUserProfile.settingsProfiles)
+            self.__settingsProfileNames = []
             self.__settingsProfileList = self.__selectedUserProfile.settingsProfiles
             for item in self.__selectedUserProfile.settingsProfiles:
-                if item not in self.__settingsProfileNames:
-                    self.__settingsProfileNames.append(item.name)
+                self.__settingsProfileNames.append(item.name)
             '''
         if not self.__selectedSettingsProfile in self.__settingsProfileList:
             self.__selectedSettingsProfile = self.__defaultSettingsProfile
