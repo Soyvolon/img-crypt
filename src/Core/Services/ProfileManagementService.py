@@ -56,27 +56,15 @@ class ProfileManagementService(PMSI):
 
 
     def get_settings_profiles_for_user(self, profile: UserProfile) -> None:
-        self.c.execute('''SELECT key FROM SettingsProfiles WHERE UserProfile=?''', (profile.key))
+        # self.c.execute('''SELECT key FROM SettingsProfiles WHERE UserProfile=?''', (profile.key))
+        self.c.execute("""SELECT Name, CharPerPixel, PixelSpacing, ColorSettings, EncryptionKey, Key FROM SettingsProfiles WHERE UserProfile=?""", (profile.key))
         settingsProfileList = []
-        name = ''
-        charPerPixel = 0
-        pixelSpacing = 0
-        colorSettings = 0
-        encryptKey = ''
         for item in self.c.fetchall():
-            self.c.execute("""SELECT Name FROM SettingsProfiles WHERE Key=?""", (item[0],))
-            name = self.c.fetchall()
-            self.c.execute("""SELECT CharPerPixel FROM SettingsProfiles WHERE Key=?""", (item[0],))
-            charPerPixel = self.c.fetchall()
-            self.c.execute("""SELECT PixelSpacing FROM SettingsProfiles WHERE Key=?""", (item[0],))
-            pixelSpacing = self.c.fetchall()
-            self.c.execute("""SELECT ColorSettings FROM SettingsProfiles WHERE Key=?""", (item[0],))
-            colorSettings = self.c.fetchall()
-            self.c.execute("""SELECT EncryptionKey FROM SettingsProfiles WHERE Key=?""", (item[0],))
-            encryptKey = self.c.fetchall()
-            profile = SettingsProfile(name, charPerPixel, pixelSpacing, colorSettings, encryptKey)
-            profile.key = item
-            settingsProfileList.append(profile)
+            p = SettingsProfile(item[0], item[1], item[2], item[3], item[4])
+            p.userProfile = profile
+            p.key = item[5]
+
+            settingsProfileList.append(p)
         profile.settingsProfiles = settingsProfileList
         return profile
 
