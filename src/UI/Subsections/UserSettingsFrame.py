@@ -435,7 +435,6 @@ class UserSettingsFrame(AppFrameInterface):
         if self.__selectedUserProfile != None:
             self.__selectedUserProfile = self.__profileService.get_settings_profiles_for_user(self.__selectedUserProfile)
             print(self.__selectedUserProfile.settingsProfiles)
-            self.__settingsProfileNames = []
             self.__settingsProfileList = self.__selectedUserProfile.settingsProfiles
             for item in self.__selectedUserProfile.settingsProfiles:
                 self.__settingsProfileNames.append(item.name)
