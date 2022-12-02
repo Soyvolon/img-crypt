@@ -82,7 +82,7 @@ class UserSettingsFrame(AppFrameInterface):
         # user profile selection
         self.__userProfile = ttk.Combobox(
             master=self.__userProfileFrame,
-            postcommand=self.__refresh_user_profiles
+            # postcommand=self.__refresh_user_profiles
         )
         self.__userProfile.bind("<<ComboboxSelected>>", self.__user_profile_changed)
 
@@ -152,7 +152,7 @@ class UserSettingsFrame(AppFrameInterface):
         # settings profile selection
         self.__settingsProfile = ttk.Combobox(
             master=self.__settingsProfileFrame,
-            postcommand=self.__refresh_user_profiles
+            # postcommand=self.__refresh_user_profiles
         )
         self.__settingsProfile.bind("<<ComboboxSelected>>", self.__settings_profile_changed)
 
@@ -429,6 +429,7 @@ class UserSettingsFrame(AppFrameInterface):
         # TODO load profiles from database. Needs to be specific to the currently selected
         # user profile
         # TODO add rest of profiles from db
+        self.__settingsProfileNames.clear()
         self.__settingsProfileList = [default]
         if self.__selectedUserProfile != None:
             self.__profileService.get_settings_profiles_for_user(self.__selectedUserProfile)
