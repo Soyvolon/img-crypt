@@ -79,7 +79,7 @@ class ProfileManagementService(PMSI):
         return newProfile
 
     def delete_settings_profile(self, key: int) -> bool:
-        keyTup = (key[0],)
+        keyTup = (key,)
         self.c.execute(''' DELETE FROM SettingsProfiles WHERE Key=?''', keyTup)
         self.conn.commit()
 
