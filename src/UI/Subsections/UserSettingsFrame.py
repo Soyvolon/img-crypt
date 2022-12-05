@@ -190,7 +190,7 @@ class UserSettingsFrame(AppFrameInterface):
             master=self.__rightFrame,
             values=(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
         )
-        self.__pixelSpacing.set(defaultSP.pixelSpacing)
+        self.__pixelSpacing.set(defaultSP.pixelSpacing + 1)
 
         # hash key label
         self.__hashKeyLabel = ttk.Label(
@@ -301,6 +301,7 @@ class UserSettingsFrame(AppFrameInterface):
         name = tk.simpledialog.askstring("Name of User Profile", "Enter the name of the User Profile")
         if name != None:
             self.__selectedUserProfile = self.__profileService.create_user_profile(name)
+            self.__refresh_user_profiles()
 
     def __delete_user_profile_pressed(self):
         self._error_if_not_initialized()
@@ -327,14 +328,14 @@ class UserSettingsFrame(AppFrameInterface):
         name = tk.simpledialog.askstring("Name of Settings Profile", "Enter the name of the Settings Profile")
         if name != None:
             self.__selectedSettingsProfile = self.__profileService.create_settings_profile(name, self.__selectedUserProfile.key)
-        
+            self.__refresh_user_profiles()
 
     def __delete_settings_profile_pressed(self):
         self._error_if_not_initialized()
         msg_bx = tk.messagebox.askquestion("Delete Settings Profile", "Are you sure you want to delete the Settings Profile?", icon = 'warning')
         if msg_bx:
             self.__profileService.delete_settings_profile(self.__selectedSettingsProfile.key)
-            self.__refresh_settings_profiles
+            self.__refresh_settings_profiles()
 
     def __save_settings_profile_pressed(self):
         self._error_if_not_initialized()
@@ -461,7 +462,7 @@ class UserSettingsFrame(AppFrameInterface):
             self.__defaultSettingsProfile = SettingsProfile(
                 name='<default>',
                 charPerPixel=1,
-                pixelSpacing=1,
+                pixelSpacing=0,
                 colorSettings=SettingsProfile.COLOR_STANDARD,
                 encryptKey=''
             )

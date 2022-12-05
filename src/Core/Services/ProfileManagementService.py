@@ -73,7 +73,7 @@ class ProfileManagementService(PMSI):
     def create_settings_profile(self, name: str, parentKey: int) -> SettingsProfile:
         newProfile = SettingsProfile(name, 0, 0, 0, "")
         newProfile.key = parentKey
-        values = (name, 1, 1, 1, None, int(parentKey[0]))
+        values = (name, 1, 0, SettingsProfile.COLOR_STANDARD, '', int(parentKey[0]))
         self.c.execute('''INSERT INTO SettingsProfiles(Name, CharPerPixel, PixelSpacing, ColorSettings, EncryptionKey, UserProfile) VALUES(?,?,?,?,?,?)''', values)
         self.conn.commit()
         return newProfile
