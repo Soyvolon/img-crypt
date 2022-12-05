@@ -190,8 +190,7 @@ class UserSettingsFrame(AppFrameInterface):
             master=self.__rightFrame,
             values=(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
         )
-        self.__pixelSpacing.current(defaultSP.pixelSpacing)
-        self.__pixelSpacing.bind("<<ComboboxSelected>>", self.__pixel_spacing_changed)
+        self.__pixelSpacing.set(defaultSP.pixelSpacing)
 
         # hash key label
         self.__hashKeyLabel = ttk.Label(
@@ -295,7 +294,7 @@ class UserSettingsFrame(AppFrameInterface):
         for item in self.__userProfileList:
             if item.name[0][0] == selectedProfileName:
                 self.__selectedUserProfile = item
-        self.__refresh_user_profiles
+        self.__refresh_user_profiles()
 
     def __new_user_profile_pressed(self):
         self._error_if_not_initialized()
@@ -308,13 +307,19 @@ class UserSettingsFrame(AppFrameInterface):
         ms_bx = tk.messagebox.askquestion("Delete User Profile", "Are you sure you want to delete the User Profile?", icon = 'warning')
         if ms_bx:
             self.__profileService.delete_user_profile(self.__selectedUserProfile.key)
-            self.__refresh_user_profiles
+        self.__refresh_user_profiles()
 
     def __settings_profile_changed(self, *args):
         self._error_if_not_initialized()
         selectedProfilePos = self.__settingsProfile.current()
         self.__selectedSettingsProfile = self.__settingsProfileList[selectedProfilePos]
         self.__refresh_user_profiles()
+
+        self.__charsPerPixel.set(self.__selectedSettingsProfile.charPerPixel)
+        self.__pixelSpacing.set(int(self.__selectedSettingsProfile.pixelSpacing) + 1)
+        self.__colorSettings.set('Standard' if self.__selectedSettingsProfile.colorSettings == SettingsProfile.COLOR_STANDARD else 'Unique')
+        self.__hashKey.delete(0, 'end')
+        self.__hashKey.insert(0, self.__selectedSettingsProfile.encryptKey if self.__selectedSettingsProfile.encryptKey else '')
 
     def __new_settings_profile_pressed(self):
         self._error_if_not_initialized()
@@ -333,33 +338,14 @@ class UserSettingsFrame(AppFrameInterface):
 
     def __save_settings_profile_pressed(self):
         self._error_if_not_initialized()
-        self.__selectedSettingsProfile.charPerPixel = self.__charsPerPixel.get()
-        self.__selectedSettingsProfile.pixelSpacing = self.__pixelSpacing.get()
+        self.__selectedSettingsProfile.charPerPixel = int(self.__charsPerPixel.get())
+        self.__selectedSettingsProfile.pixelSpacing = int(self.__pixelSpacing.get()) - 1
         self.__selectedSettingsProfile.colorSettings = self.__colorSettings.current()
         self.__selectedSettingsProfile.encryptKey = self.__hashKey.get()
         if self.__hashKey.get() == "":
             self.__selectedSettingsProfile.encryptKey = None
         self.__profileService.update_settings_profile(self.__selectedSettingsProfile, self.__selectedUserProfile.key[0])
     
-    # END REGION
-
-    # REGION Settings
-    def __chars_per_pixel_changed(self):
-        self._error_if_not_initialized()
-        pass
-
-    def __color_settings_changed(self):
-        self._error_if_not_initialized()
-        pass
-
-    def __pixel_spacing_changed(self, *args):
-        self._error_if_not_initialized()
-        pass
-
-    def __hash_key_changed(self):
-        self._error_if_not_initialized()
-        pass
-
     # END REGION
 
     # REGION Public Methods
